@@ -1,5 +1,7 @@
 
-# Server NodeJS con typescript listo para iniciar cualquier proyecto
+# Server NodeJS con typescript para la prueba técnica del puesto como desarrollador Front End en la empresa Arkon Data
+
+### Instrucciones para levantar el servidor
 
 Reconstruir módulos de Node
 ```
