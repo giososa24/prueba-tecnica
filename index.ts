@@ -1,8 +1,10 @@
 import Server from "./classes/server";
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import router from './routes/router';
+import loginRoutes from './routes/login';
 import dbConnection from './db/config';
+import usuarioRoutes from "./routes/usuario";
+import tareaRoutes from "./routes/tarea";
 
 const server = Server.instance;
 
@@ -14,7 +16,9 @@ server.app.use(bodyParser.json());
 server.app.use( cors({origin: true, credentials: true}) );
 
 //Rutas de servicios
-server.app.use('/api', router);
+server.app.use('/api/login', loginRoutes);
+server.app.use('/api/usuario', usuarioRoutes);
+server.app.use('/api/tarea', tareaRoutes);
 
 //Conectar DB
 dbConnection();
