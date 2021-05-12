@@ -8,10 +8,27 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { useForm } from '../hooks/useForm';
+import { useDispatch } from 'react-redux';
+import { Login } from '../actions/auth';
 
 const LoginScreen = () => {
 
     const classes = useStyles();
+
+    const initialForm = {
+        email: '',
+        password: '',
+    }
+
+    const dispatch = useDispatch();
+
+    const { email, password, onChange } = useForm(initialForm);
+
+    const onLogin = (e: any) => {
+        e.preventDefault();
+        dispatch(Login(email, password));
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -23,7 +40,7 @@ const LoginScreen = () => {
                 <Typography component="h1" variant="h5">
                     Iniciar Sesión
                 </Typography>
-                <form className={classes.form} noValidate>
+                <form className={classes.form} noValidate onSubmit={onLogin}>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -34,6 +51,7 @@ const LoginScreen = () => {
                         name="email"
                         autoComplete="email"
                         autoFocus
+                        onChange={(e) => onChange(e.target.value, 'email')}
                     />
                     <TextField
                         variant="outlined"
@@ -45,6 +63,7 @@ const LoginScreen = () => {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        onChange={(e) => onChange(e.target.value, 'password')}
                     />
                     <Button
                         type="submit"
@@ -52,6 +71,7 @@ const LoginScreen = () => {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={onLogin}
                     >
                         Entrar
                     </Button>
