@@ -1,12 +1,12 @@
 import { AuthAction, AuthState } from "../types/types";
 
 const initialState: AuthState = {
-    status: 'checking',
+    status: 'not-authenticated',
     token: null,
     user: null,
 }
 
-export const authReducer = (state = initialState, action: AuthAction): AuthState => {
+export const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
     switch (action.type) {
 
@@ -14,6 +14,22 @@ export const authReducer = (state = initialState, action: AuthAction): AuthState
             return {
                 ...state,
                 status: 'authenticated',
+                user: action.payload,
+                token: action.token,
+            }
+
+        case 'signUp':
+            return {
+                ...state,
+                status: 'not-authenticated',
+                user: action.payload,
+            }
+
+        case 'checkAuth':            
+            return {
+                ...state,
+                status: 'authenticated',
+                token: action.token,
                 user: action.payload,
             }
 
@@ -33,7 +49,7 @@ export const authReducer = (state = initialState, action: AuthAction): AuthState
             }
 
         default:
-            return state;
+            return initialState;
     }
 
 }

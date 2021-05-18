@@ -1,4 +1,6 @@
+import { Fab } from '@material-ui/core';
 import { DataGrid, GridRowsProp, GridColDef, GridFilterModel } from '@material-ui/data-grid';
+import AddIcon from '@material-ui/icons/Add';
 
 const HomeScreen = () => {
 
@@ -9,21 +11,32 @@ const HomeScreen = () => {
     ];
 
     const columns: GridColDef[] = [
-        { field: 'col1', headerName: 'Column 1', width: 500, editable: true, filterable: true,  },
+        { field: 'col1', headerName: 'Column 1', width: 500, editable: true, filterable: true, },
         { field: 'col2', headerName: 'Column 2', width: 500, editable: true },
     ];
 
     const riceFilterModel: GridFilterModel = {
         items: [{ columnField: 'col1', operatorValue: 'contains', value: '' }],
-      };
+    };
 
     return (
-        <div>
-            <h1>Home Screen</h1>
+        <div style={{ padding: '3em' }}>
+            <h1>Mis tareas</h1>
             <hr />
 
-            <div style={{ height: 300, width: '100%' }}>
-                <DataGrid autoHeight rows={rows} columns={columns} filterModel={riceFilterModel} />
+            <Fab color="primary" aria-label="add" size="small" style={{ marginTop: '5px', float: 'right' }} >
+                <AddIcon />
+            </Fab>
+            <div style={{ width: '100%', marginTop: '65px' }}>
+                <DataGrid 
+                    autoHeight 
+                    rows={rows} 
+                    columns={columns} 
+                    filterModel={riceFilterModel} 
+                    pageSize={rows.length}
+                    rowsPerPageOptions={[5, 10, 20]}
+                    
+                />
             </div>
         </div>
     )

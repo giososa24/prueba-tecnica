@@ -73,7 +73,7 @@ const LoginScreen = () => {
                         className={classes.submit}
                         onClick={onLogin}
                     >
-                        Entrar
+                        <Link to='/' >Entrar</Link>
                     </Button>
                     <Grid container>
                         <Grid item xs></Grid>
