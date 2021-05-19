@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField } from '@material-ui/core';
-import { DataGrid, GridRowsProp, GridColDef, GridFilterModel } from '@material-ui/data-grid';
+import MaterialTable, { Column } from 'material-table';
 import AddIcon from '@material-ui/icons/Add';
 import moment from 'moment';
 import { useForm } from '../hooks/useForm';
@@ -20,6 +20,7 @@ const HomeScreen = () => {
     const { form, onChange } = useForm(initialForm);
     const { create, getByUser } = useTask();
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
 
     useEffect(() => {
@@ -27,11 +28,11 @@ const HomeScreen = () => {
     }, []);
 
     const loadData = async () => {
+        setLoading(true);
         const resp = await getByUser(1, 0, 0);        
         if(resp.data){
-            resp.data.forEach((item, index) => {
-                item.id = index;
-                item.creadoString = moment(item.creado).format('L');
+            resp.data.forEach((item) => {
+                item.creadoString = moment(item.creado).locale('es-mx').format('L');
                 item.duracion = `${item.horas}:${item.minutos}:${item.segundos}`;
                 item.tiempo = `${item.tiempoHoras}:${item.tiempoMinutos}:${item.tiempoSegundos}`;
                 if(item.estado === 0){
@@ -49,25 +50,22 @@ const HomeScreen = () => {
             });
             setTareas(resp.data);
         }        
-        
+        setLoading(false);
         return resp;
     }
 
-    const rows: GridRowsProp = tareas;
+    const rows: Tarea[] = tareas;
 
-    const columns: GridColDef[] = [
-        { field: 'nombre', headerName: 'Nombre', width: 250, editable: true, filterable: true, },
-        { field: 'descripcion', headerName: 'Descripción', width: 300, editable: true },
-        { field: 'duracion', headerName: 'Duración', width: 150, editable: true },
-        { field: 'tiempo', headerName: 'Tiempo', width: 150, editable: true },
-        { field: 'estadoString', headerName: 'Estado', width: 150, editable: true },
-        { field: 'creadoString', headerName: 'Creado', width: 150, editable: true },
-        { field: 'terminado', headerName: 'Terminado', width: 150, editable: true },
+    const columns: Column<Tarea>[] = [
+        { field: 'nombre', title: 'Nombre', width: 250, filtering: true, sorting: true },
+        { field: 'descripcion', title: 'Descripción', width: 300, sorting: true },
+        { field: 'duracion', title: 'Duración', width: 150, sorting: true },
+        { field: 'tiempo', title: 'Tiempo', width: 150, sorting: true },
+        { field: 'estadoString', title: 'Estado', width: 150, sorting: true },
+        { field: 'creadoString', title: 'Creado', width: 150, sorting: true },
+        { field: 'terminado', title: 'Terminado', width: 150, sorting: true },
+        
     ];
-
-    const riceFilterModel: GridFilterModel = {
-        items: [{ columnField: 'col1', operatorValue: 'contains', value: '' }],
-    };
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -159,14 +157,33 @@ const HomeScreen = () => {
             </div>
 
             <div style={{ width: '100%', marginTop: '65px' }}>
-                <DataGrid
-                    autoHeight
-                    rows={rows}
+                <MaterialTable
                     columns={columns}
-                    filterModel={riceFilterModel}
-                    pageSize={rows.length}
-                    rowsPerPageOptions={[5, 10, 20]}
-
+                    data={rows}
+                    title="mis tareas"
+                    isLoading={loading}
+                    options={{
+                        showTitle: false,
+                        actionsColumnIndex: -1
+                        //search: false,
+                    }}
+                    localization={{
+                        header: {
+                            actions: 'Acciones'
+                        }
+                    }}
+                    actions={[
+                        {
+                            icon: 'edit',
+                            tooltip:'Editar tarea',
+                            onClick: (event, rowData) => {console.log(event, rowData)}
+                        },
+                        {
+                            icon: 'delete',
+                            tooltip:'Eliminar tarea',
+                            onClick: (event, rowData) => {console.log(event, rowData)}
+                        },
+                    ]}
                 />
             </div>
         </div >

@@ -1,7 +1,6 @@
 
 
 export default interface Tarea {
-    id?: number;
     _id?: string;
     usuario?: string;
     nombre: string;
