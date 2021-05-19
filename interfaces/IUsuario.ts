@@ -8,4 +8,5 @@ export default interface IUsuario extends Document {
     apeMat: string;
     creado: number;
     activo: boolean;
+    token?: string;
 }

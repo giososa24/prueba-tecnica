@@ -1,12 +1,15 @@
 import { Document } from 'mongoose';
-import IDuracion from "./IDuracion";
 
 export default interface ITarea extends Document {
     usuario: string;
     nombre: string;
     descripcion: string;
-    duracion: IDuracion;
-    tiempo: IDuracion;
+    horas: number;
+    minutos: number;
+    segundos: number;
+    tiempoHoras: number;
+    tiempoMinutos: number;
+    tiempoSegundos: number;
     estado: number;
     creado: number;
     terminado: number;

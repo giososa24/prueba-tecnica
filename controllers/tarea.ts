@@ -27,11 +27,11 @@ export const tareaController = {
             if (estado === 3) {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, estado: 3, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
             } else if (duracion > 0 && duracion <= 30) {
-                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, duracion: { minutos: { $gte: 0, $lt: 30 }, horas: { $lt: 0 }, segundos: { $gte: 0 } }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
+                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, minutos: { $gt: 0, $lt: 30 }, horas: { $lte: 0 }, segundos: { $gte: 0 }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
             } else if (duracion > 30 && duracion <= 60) {
-                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, duracion: { minutos: { $gte: 0 }, horas: { $gte: 1 }, segundos: { $gte: 0 } }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
+                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, minutos: { $gte: 30, $lt: 59 }, horas: { $lte: 0 }, segundos: { $gte: 0 }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
             } else if (duracion > 60 && duracion <= 120) {
-                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, duracion: { minutos: { $gte: 0 }, horas: { $gte: 0 }, segundos: { $gte: 0 } }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
+                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, horas: { $gte: 1 }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
             } else {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
             }
@@ -79,7 +79,9 @@ export const tareaController = {
             tareaNueva.usuario = body.usuario;
             tareaNueva.nombre = body.nombre;
             tareaNueva.descripcion = body.descripcion;
-            tareaNueva.duracion = body.duracion;
+            tareaNueva.horas = body.horas;
+            tareaNueva.minutos = body.minutos;
+            tareaNueva.segundos = body.segundos;
             tareaNueva.creado = Date.now();
 
             const usuarioFind = await UsuarioModel.findOne({ _id: body.usuario, activo: true });
@@ -88,7 +90,7 @@ export const tareaController = {
 
                 const tareaCreated = await tareaNueva.save();
 
-                if (tareaNueva.duracion.horas < 2) {
+                if (tareaNueva.horas < 2) {
                     if (tareaCreated) {
                         return res.status(202).send({
                             status: true,
@@ -132,7 +134,9 @@ export const tareaController = {
             if (tareaFind) {
 
                 tareaFind.descripcion = body.descripcion;
-                tareaFind.duracion = body.duracion;
+                tareaFind.horas = body.horas;
+                tareaFind.minutos = body.minutos;
+                tareaFind.segundos = body.segundos;
 
                 const tareaUpdated = await TareaModel.findByIdAndUpdate(tareaFind._id, tareaFind);
 

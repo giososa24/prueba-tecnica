@@ -15,41 +15,40 @@ const tareaSchema = new Schema({
         type: String,
         required: [true, "Debes dejar una descripción para la tarea"],
     },
-    duracion: {
-        horas: {
-            type: Number,
-            default: 0,
-        },
-        minutos: {
-            type: Number,
-            default: 0,
-        },
-        segundos: {
-            type: Number,
-            default: 0,
-        },
+    horas: {
+        type: Number,
+        default: 0,
     },
-    tiempo: {
-        horas: {
-            type: Number,
-            default: 0,
-        },
-        minutos: {
-            type: Number,
-            default: 0,
-        },
-        segundos: {
-            type: Number,
-            default: 0,
-        },
+    minutos: {
+        type: Number,
+        default: 0,
+    },
+    segundos: {
+        type: Number,
+        default: 0,
+    },
+    tiempoHoras: {
+        type: Number,
+        default: 0,
+    },
+    tiempoMinutos: {
+        type: Number,
+        default: 0,
+    },
+    tiempoSegundos: {
+        type: Number,
+        default: 0,
     },
     estado: {
         type: Number,
         default: 0,
     },
-    terminado: {
+    creado: {
         type: Number,
         default: Date.now(),
+    },
+    terminado: {
+        type: Number,
     },
     activo: {
         type: Boolean,

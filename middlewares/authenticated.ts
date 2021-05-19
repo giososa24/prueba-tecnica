@@ -5,7 +5,7 @@ import { secret } from '../services/jwt';
 import IPayload from '../interfaces/IPayload';
 
 const ensureAuth = (req: Request, res: Response, next: NextFunction) => {
-
+    
     if (!req.headers.authorization) {
         return res.status(200).send({ message: 'La petición no tiene la cabecera de autenticación', status: false });
     }
@@ -26,8 +26,6 @@ const ensureAuth = (req: Request, res: Response, next: NextFunction) => {
             message: 'Su sesión ha expirado', status: false, sesion: false
         });
     }
-
-    req.body = payload;
 
     next();
 }

@@ -24,33 +24,31 @@ export const usuarioController = {
 
                 // Controlar usuarios duplicados
                 const usuarioFind = await UsuarioModel.findOne({ $and: [{ nombre: usuario.nombre }, { apePat: usuario.apePat }, { apeMat: usuario.apeMat }] });
-
-                if (usuarioFind) {
+                
+                if (usuarioFind) {                    
                     return res.status(200).send({ message: 'El usuario que intentas registrar ya existe', status: false });
                 }
 
-                const usuarioCorreoFind = UsuarioModel.findOne({ email: usuario.correo.toLowerCase() });
+                const usuarioCorreoFind = await UsuarioModel.findOne({ email: usuario.correo.toLowerCase() });
 
                 if (usuarioCorreoFind) {
                     return res.status(200).send({ message: 'El usuario que intentas registrar ya existe', status: false });
                 }
 
+                const salt = bcrypt.genSaltSync(10);
                 //Cifrar la contraseña y guardar los datos
-                bcrypt.hash(params.contrasena, '100', null, async (err, hash) => {
+                const hash = bcrypt.hashSync(params.contrasena, salt);
+                
+                if(hash){
+                    usuario.contrasena = hash;
+                    const usuarioSave = await usuario.save();
 
-                    if (hash) {
-                        usuario.contrasena = hash;
-                        const usuarioSave = await usuario.save();
-
-                        if (usuarioSave) {
-                            return res.status(202).send({ message: 'Usuario registrado correctamente', status: true });
-                        } else {
-                            return res.status(202).send({ message: 'No se pudo registrar el usuario, intentalo más tarde', status: false });
-                        }
+                    if (usuarioSave) {
+                        return res.status(202).send({ message: 'Usuario registrado correctamente', status: true });
                     } else {
-                        throw err;
+                        return res.status(202).send({ message: 'No se pudo registrar el usuario, intentalo más tarde', status: false });
                     }
-                });
+                }
 
             } else {
                 return res.status(200).send({ message: 'No se permitirán campos vacios', status: false });
