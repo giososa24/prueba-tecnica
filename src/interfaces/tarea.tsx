@@ -1,19 +1,22 @@
 
 
 export default interface Tarea {
+    id?: number;
     _id?: string;
     usuario?: string;
     nombre: string;
     descripcion: string;
-    duracion: Duracion;
-    tiempo?: Duracion;
-    estado?: number;
-    creado?: number;
-    terminado?: number;
-}
-
-export interface Duracion {
+    duracion?: string;
+    tiempo?: string;
     horas: number;
     minutos: number;
     segundos: number;
+    tiempoHoras?: number;
+    tiempoMinutos?: number;
+    tiempoSegundos?: number;
+    estado?: number;
+    estadoString?: string;
+    creado?: number;
+    creadoString?: string;
+    terminado?: number;
 }

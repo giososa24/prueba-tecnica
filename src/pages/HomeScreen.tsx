@@ -1,36 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField } from '@material-ui/core';
 import { DataGrid, GridRowsProp, GridColDef, GridFilterModel } from '@material-ui/data-grid';
 import AddIcon from '@material-ui/icons/Add';
-import { useState } from 'react';
+import moment from 'moment';
 import { useForm } from '../hooks/useForm';
 import { useTask } from '../hooks/useTask';
+import Tarea from '../interfaces/tarea';
 
 const HomeScreen = () => {
-
-    const [open, setOpen] = useState(false);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const rows: GridRowsProp = [
-        { id: 1, col1: 'Hello', col2: 'World' },
-        { id: 2, col1: 'XGrid', col2: 'is Awesome' },
-        { id: 3, col1: 'Material-UI', col2: 'is Amazing' },
-    ];
-
-    const columns: GridColDef[] = [
-        { field: 'col1', headerName: 'Column 1', width: 500, editable: true, filterable: true, },
-        { field: 'col2', headerName: 'Column 2', width: 500, editable: true },
-    ];
-
-    const riceFilterModel: GridFilterModel = {
-        items: [{ columnField: 'col1', operatorValue: 'contains', value: '' }],
-    };
 
     const initialForm = {
         nombre: '',
@@ -40,14 +17,70 @@ const HomeScreen = () => {
         segundos: 0
     }
 
-    const { nombre, descripcion, horas, minutos, segundos, onChange } = useForm(initialForm);
-    const { create } = useTask();
+    const { form, onChange } = useForm(initialForm);
+    const { create, getByUser } = useTask();
+    const [open, setOpen] = useState(false);
+    const [tareas, setTareas] = useState<Tarea[]>([]);
 
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const loadData = async () => {
+        const resp = await getByUser(1, 0, 0);        
+        if(resp.data){
+            resp.data.forEach((item, index) => {
+                item.id = index;
+                item.creadoString = moment(item.creado).format('L');
+                item.duracion = `${item.horas}:${item.minutos}:${item.segundos}`;
+                item.tiempo = `${item.tiempoHoras}:${item.tiempoMinutos}:${item.tiempoSegundos}`;
+                if(item.estado === 0){
+                    item.estadoString = 'Por iniciar'
+                }
+                if(item.estado === 1) {
+                    item.estadoString = 'En curso';
+                }
+                if(item.estado === 2) {
+                    item.estadoString = 'Pausado';
+                }
+                if(item.estado === 3){
+                    item.estadoString = 'Finalizado';
+                }
+            });
+            setTareas(resp.data);
+        }        
+        
+        return resp;
+    }
+
+    const rows: GridRowsProp = tareas;
+
+    const columns: GridColDef[] = [
+        { field: 'nombre', headerName: 'Nombre', width: 250, editable: true, filterable: true, },
+        { field: 'descripcion', headerName: 'Descripción', width: 300, editable: true },
+        { field: 'duracion', headerName: 'Duración', width: 150, editable: true },
+        { field: 'tiempo', headerName: 'Tiempo', width: 150, editable: true },
+        { field: 'estadoString', headerName: 'Estado', width: 150, editable: true },
+        { field: 'creadoString', headerName: 'Creado', width: 150, editable: true },
+        { field: 'terminado', headerName: 'Terminado', width: 150, editable: true },
+    ];
+
+    const riceFilterModel: GridFilterModel = {
+        items: [{ columnField: 'col1', operatorValue: 'contains', value: '' }],
+    };
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     const onSave = (e: any) => {
         handleClose();
         e.preventDefault();
-        create(nombre, descripcion, horas, minutos, segundos);
+        create(form);
     }
 
     return (

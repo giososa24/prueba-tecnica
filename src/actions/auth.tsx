@@ -70,10 +70,10 @@ export const Register = (form: Usuario) => {
 
     return async (dispatch: (action: AuthAction) => void) => {
 
-        const { data } = await tareaApi.post<Response<null>>('/usuario/save-user', form);
+        const { data } = await tareaApi.post('/usuario/save-user', form);
 
         if (data && data.status !== false) {
-            dispatch(register(data.data!));
+            dispatch(register(data.data));
         }
     }
 }
