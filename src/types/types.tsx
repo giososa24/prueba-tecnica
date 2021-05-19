@@ -1,4 +1,5 @@
 import { Usuario } from '../interfaces/usuario';
+import Tarea from '../interfaces/tarea';
 
 export interface AuthState {
     status: 'authenticated' | 'not-authenticated';

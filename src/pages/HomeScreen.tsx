@@ -1,8 +1,9 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, TextField } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField } from '@material-ui/core';
 import { DataGrid, GridRowsProp, GridColDef, GridFilterModel } from '@material-ui/data-grid';
 import AddIcon from '@material-ui/icons/Add';
 import { useState } from 'react';
 import { useForm } from '../hooks/useForm';
+import { useTask } from '../hooks/useTask';
 
 const HomeScreen = () => {
 
@@ -40,13 +41,13 @@ const HomeScreen = () => {
     }
 
     const { nombre, descripcion, horas, minutos, segundos, onChange } = useForm(initialForm);
+    const { create } = useTask();
+
 
     const onSave = (e: any) => {
         handleClose();
         e.preventDefault();
-        console.log(nombre, descripcion, horas, minutos, segundos);
-
-        //dispatch(Login(email, password));
+        create(nombre, descripcion, horas, minutos, segundos);
     }
 
     return (
@@ -71,53 +72,46 @@ const HomeScreen = () => {
                             <TextField
                                 autoFocus
                                 margin="dense"
-                                id="name"
-                                name="nombre"
                                 label="Nombre"
                                 type="text"
                                 fullWidth
                                 onChange={(e) => onChange(e.target.value, 'nombre')}
                             />
                             <TextField
-                                autoFocus
                                 margin="dense"
-                                id="description"
-                                name="descripcion"
                                 label="Descripción"
                                 type="text"
                                 fullWidth
+                                multiline
+                                rowsMax={4}
                                 onChange={(e) => onChange(e.target.value, 'descripcion')}
                             />
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                id="hours"
-                                name="horas"
-                                label="Horas"
-                                type="number"
-                                style={{ maxWidth: '150px', marginLeft: '25px' }}
-                                onChange={(e) => onChange(e.target.value, 'horas')}
-                            />
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                id="minutes"
-                                name="minutos"
-                                label="Minutos"
-                                type="number"
-                                style={{ maxWidth: '150px', marginLeft: '25px' }}
-                                onChange={(e) => onChange(e.target.value, 'minutos')}
-                            />
-                            <TextField
-                                autoFocus
-                                margin="dense"
-                                id="seconds"
-                                name="segundos"
-                                label="Segundos"
-                                type="number"
-                                style={{ maxWidth: '150px', marginLeft: '25px' }}
-                                onChange={(e) => onChange(e.target.value, 'segundos')}
-                            />
+                            <Grid container spacing={5}>
+                                <Grid container item xs={4}>
+                                    <TextField
+                                        margin="dense"
+                                        label="Horas"
+                                        type="number"
+                                        onChange={(e) => onChange(e.target.value, 'horas')}
+                                    />
+                                </Grid>
+                                <Grid container item xs={4}>
+                                    <TextField
+                                        margin="dense"
+                                        label="Minutos"
+                                        type="number"
+                                        onChange={(e) => onChange(e.target.value, 'minutos')}
+                                    />
+                                </Grid>
+                                <Grid container item xs={4}>
+                                    <TextField
+                                        margin="dense"
+                                        label="Segundos"
+                                        type="number"
+                                        onChange={(e) => onChange(e.target.value, 'segundos')}
+                                    />
+                                </Grid>
+                            </Grid>
                         </form>
                     </DialogContent>
                     <DialogActions>

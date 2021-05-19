@@ -18,6 +18,7 @@ const RegisterScreen = () => {
     const classes = useStyles();
 
     const initialForm: Usuario = {
+        _id: '',
         nombre: '',
         apePat: '',
         apeMat: '',
