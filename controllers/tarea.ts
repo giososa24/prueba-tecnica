@@ -15,10 +15,11 @@ export const tareaController = {
         const page = Number(req.params.page);
         const estado = Number(req.params.estado);
         const duracion = Number(req.params.duracion);
+        const limit = Number(req.params.limit);
         const optionsPaginate = {
             page,
-            limit: 10
-        };
+            limit,
+        };        
 
         try {
 
@@ -172,11 +173,12 @@ export const tareaController = {
 
             const idTarea = req.params.id;
 
-            const tareaFind = await TareaModel.findOne({ _di: idTarea, activo: true });
+            const tareaFind = await TareaModel.findOne({ _id: idTarea, activo: true });
 
             if (tareaFind) {
 
-                const tareaDeleted = await TareaModel.remove(tareaFind._id);
+                tareaFind.activo = false;
+                const tareaDeleted = await TareaModel.findByIdAndUpdate(tareaFind._id, tareaFind);
 
                 if (tareaDeleted) {
                     return res.status(202).send({
