@@ -11,6 +11,13 @@ import { confirmDialg } from '../functions/Swal';
 
 const HomeScreen = () => {
 
+    const filters = {
+        page: 1,
+        pageNumber: 5,
+        totalPages: 0,
+        estado: 0,
+        duracion: 0,
+    }
     const initialForm = {
         _id: '',
         nombre: '',
@@ -19,7 +26,7 @@ const HomeScreen = () => {
         minutos: 0,
         segundos: 0
     }
-
+    const [pagination, setPagination] = useState(filters);
     const [handleUpdate, setHandleUpdate] = useState(false);
     const { form, onChange } = useForm(initialForm);
     const { getByUser, create, update, Delete } = useTask();
@@ -28,20 +35,32 @@ const HomeScreen = () => {
     const [tareas, setTareas] = useState<Tarea[]>([]);
 
     useEffect(() => {
-        loadData();
+        const { page, pageNumber, estado, duracion } = filters;
+        loadData(page, pageNumber, estado, duracion);
     }, []);
 
-    const loadData = async () => {
+    const loadData = async (page: number, limit: number, estado: number, duracion: number) => {
         setLoading(true);
-        const resp = await getByUser(1, 5, 0, 0);
+        const resp = await getByUser(page, limit, estado, duracion);
         if (resp.data) {
             setTareas(prepareDataTask(resp.data));
+            if (resp.pagination) {
+                setPagination({
+                    page: resp.pagination?.page,
+                    pageNumber: resp.pagination?.limit,
+                    totalPages: resp.pagination?.totalDocs,
+                    estado: 0,
+                    duracion: 0
+                });
+            }
         }
         setLoading(false);
-        return resp;
     }
 
-    const rows: Tarea[] = tareas;
+    const onPage = async (page: number, pageNumber: number) => {
+        const { estado, duracion } = filters;
+        loadData(page, pageNumber, estado, duracion);
+    }
 
     const handleClickOpen = () => {
         form.nombre = '';
@@ -54,10 +73,12 @@ const HomeScreen = () => {
     };
 
     const onSave = async (e: any) => {
+        const { page, pageNumber, estado, duracion } = filters;
+
         setOpen(false);
         e.preventDefault();
         await create(form);
-        loadData();
+        await loadData(page, pageNumber, estado, duracion);
     }
 
     const handleOpenUpdate = (rowData: Tarea) => {
@@ -72,17 +93,21 @@ const HomeScreen = () => {
     }
 
     const onUpdate = async (e: any) => {
+        const { page, pageNumber, estado, duracion } = filters;
+
         setOpen(false);
         e.preventDefault();
         await update(form);
-        loadData();
+        await loadData(page, pageNumber, estado, duracion);
     }
 
-    const onDelete = async (rowData: Tarea) => {        
-        if(await confirmDialg()){
+    const onDelete = async (rowData: Tarea) => {
+        const { page, pageNumber, estado, duracion } = filters;
+
+        if (await confirmDialg()) {
             await Delete(rowData._id!);
-            loadData();
-        } 
+            await loadData(page, pageNumber, estado, duracion);
+        }
     }
 
     return (
@@ -168,10 +193,11 @@ const HomeScreen = () => {
             <div style={{ width: '100%', marginTop: '65px' }}>
                 <MaterialTable
                     columns={columnsTask}
-                    data={rows}
+                    data={tareas}
                     title="mis tareas"
                     isLoading={loading}
-                    //totalCount={20}
+                    totalCount={pagination.totalPages}
+                    page={pagination.page - 1}
                     options={{
                         showTitle: false,
                         actionsColumnIndex: -1,
@@ -211,7 +237,7 @@ const HomeScreen = () => {
                             onClick: (e, rowData) => { onDelete(rowData as Tarea) }
                         },
                     ]}
-                    onChangePage={(page, pageNumber) => console.log('cambio pagina', page, pageNumber)}
+                    onChangePage={async (page, pageNumber) => { await onPage(page + 1, pageNumber) }}
                 />
             </div>
         </div >
@@ -219,5 +245,3 @@ const HomeScreen = () => {
 }
 
 export default HomeScreen;
-
-
