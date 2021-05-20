@@ -18,3 +18,8 @@ export const updateTask = (tarea: Tarea) => {
     return tareaApi.put<Response<Tarea>>('/tarea/update', tarea);
 }
 
+export const deleteTask = (idTarea: string) => {
+
+    return tareaApi.delete<Response<Tarea>>(`/tarea/delete/${idTarea}`);
+}
+

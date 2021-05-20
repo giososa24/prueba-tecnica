@@ -1,4 +1,4 @@
-import { createTask, getByUserTask, updateTask } from '../actions/task';
+import { createTask, getByUserTask, updateTask, deleteTask } from '../actions/task';
 import { errorMessage, successMessage } from "../functions/Swal";
 import Tarea from "../interfaces/tarea";
 import { Usuario } from "../interfaces/usuario";
@@ -58,6 +58,22 @@ export const useTask = () => {
         }
     }
 
+    const Delete = async (idTarea: string) => {
+
+        try {
+
+            const resp = await deleteTask(idTarea);
+
+            if (resp.data.status !== false) {
+                successMessage(resp.data.message);
+            } else {
+                errorMessage(resp.data.message);
+            }
+        } catch (error) {
+            errorMessage('Ha surgido un error, favor contacte al administrador');
+        }
+    }
+
     const validarTiempo = (tarea: Tarea) => {
         const { horas, minutos, segundos } = tarea;
 
@@ -73,5 +89,6 @@ export const useTask = () => {
         create,
         getByUser,
         update,
+        Delete,
     }
 }

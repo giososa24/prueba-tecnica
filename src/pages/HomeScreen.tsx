@@ -7,6 +7,7 @@ import { useTask } from '../hooks/useTask';
 import Tarea from '../interfaces/tarea';
 import { columnsTask } from '../types/types';
 import { prepareDataTask } from '../functions/prepareDataTask';
+import { confirmDialg } from '../functions/Swal';
 
 const HomeScreen = () => {
 
@@ -21,7 +22,7 @@ const HomeScreen = () => {
 
     const [handleUpdate, setHandleUpdate] = useState(false);
     const { form, onChange } = useForm(initialForm);
-    const { getByUser, create, update } = useTask();
+    const { getByUser, create, update, Delete } = useTask();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -75,6 +76,13 @@ const HomeScreen = () => {
         e.preventDefault();
         await update(form);
         loadData();
+    }
+
+    const onDelete = async (rowData: Tarea) => {        
+        if(await confirmDialg()){
+            await Delete(rowData._id!);
+            loadData();
+        } 
     }
 
     return (
@@ -200,7 +208,7 @@ const HomeScreen = () => {
                         {
                             icon: 'delete_outline',
                             tooltip: 'Eliminar tarea',
-                            onClick: (e, rowData) => { console.log(rowData) }
+                            onClick: (e, rowData) => { onDelete(rowData as Tarea) }
                         },
                     ]}
                     onChangePage={(page, pageNumber) => console.log('cambio pagina', page, pageNumber)}

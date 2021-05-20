@@ -20,5 +20,28 @@ export const errorMessage = (title: string) => {
     });
 }
 
+export const confirmDialg = async() => {
+    let resp = false;
+    resp = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Eliminarás la tarea seleccionada",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            return resp = true;
+        } else {
+            return resp = false;
+        }
+    });
+    
+    return resp;
+}
+
+
+
 
 
