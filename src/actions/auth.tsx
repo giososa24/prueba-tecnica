@@ -1,6 +1,5 @@
 import tareaApi from '../api/tareaApi';
 import { Usuario } from '../interfaces/usuario';
-import { Response } from '../interfaces/response';
 import { AuthAction } from '../types/types';
 
 export const Login = (email: string, password: string) => {

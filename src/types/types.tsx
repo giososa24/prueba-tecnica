@@ -1,3 +1,4 @@
+import { Column } from 'material-table';
 import { Usuario } from '../interfaces/usuario';
 import Tarea from '../interfaces/tarea';
 
@@ -13,3 +14,15 @@ export type AuthAction =
     | { type: 'signUp', payload: Usuario }
     | { type: 'notAuthenticated' }
     | { type: 'logout' }
+
+
+export const columnsTask: Column<Tarea>[] = [
+    { field: 'nombre', title: 'Nombre', width: 250, filtering: true, sorting: true },
+    { field: 'descripcion', title: 'Descripción', width: 300, sorting: true },
+    { field: 'duracion', title: 'Duración', width: 150, sorting: true },
+    { field: 'tiempo', title: 'Tiempo', width: 150, sorting: true },
+    { field: 'estadoString', title: 'Estado', width: 150, sorting: true },
+    { field: 'creadoString', title: 'Creado', width: 150, sorting: true },
+    { field: 'terminado', title: 'Terminado', width: 150, sorting: true },
+
+];

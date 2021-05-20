@@ -7,7 +7,7 @@ export const createTask = (tarea: Tarea) => {
     return tareaApi.post<Response<Tarea>>('/tarea/create', tarea);
 }
 
-export const getByUserTask = (idUsuario: string, page: number, estado: number, duracion: number) => {
+export const getByUserTask = (idUsuario: string, page: number, limit: number, estado: number, duracion: number) => {
     
-    return tareaApi.get<Response<Tarea>>(`/tarea/get-by-user/${idUsuario}/${page}/${estado}/${duracion}`);
+    return tareaApi.get<Response<Tarea>>(`/tarea/get-by-user/${idUsuario}/${page}/${limit}/${estado}/${duracion}`);
 }

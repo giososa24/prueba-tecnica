@@ -36,9 +36,9 @@ export const useTask = () => {
 
     }
 
-    const getByUser = async (page: number, estado: number, duracion: number) => {
-
-        const resp = await getByUserTask(usuario._id, page, estado, duracion);
+    const getByUser = async (page: number, limit: number, estado: number, duracion: number) => {
+        
+        const resp = await getByUserTask(usuario._id, page, limit, estado, duracion);
         if(resp.data.status === false) {
             errorMessage(resp.data.message);
         }

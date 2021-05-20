@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField } from '@material-ui/core';
-import MaterialTable, { Column } from 'material-table';
+import MaterialTable from 'material-table';
 import AddIcon from '@material-ui/icons/Add';
-import moment from 'moment';
 import { useForm } from '../hooks/useForm';
 import { useTask } from '../hooks/useTask';
 import Tarea from '../interfaces/tarea';
+import { columnsTask } from '../types/types';
+import { prepareDataTask } from '../functions/prepareDataTask';
 
 const HomeScreen = () => {
 
@@ -17,6 +18,7 @@ const HomeScreen = () => {
         segundos: 0
     }
 
+    const [update, setUpdate] = useState(false);
     const { form, onChange } = useForm(initialForm);
     const { create, getByUser } = useTask();
     const [open, setOpen] = useState(false);
@@ -29,56 +31,49 @@ const HomeScreen = () => {
 
     const loadData = async () => {
         setLoading(true);
-        const resp = await getByUser(1, 0, 0);        
-        if(resp.data){
-            resp.data.forEach((item) => {
-                item.creadoString = moment(item.creado).locale('es-mx').format('L');
-                item.duracion = `${item.horas}:${item.minutos}:${item.segundos}`;
-                item.tiempo = `${item.tiempoHoras}:${item.tiempoMinutos}:${item.tiempoSegundos}`;
-                if(item.estado === 0){
-                    item.estadoString = 'Por iniciar'
-                }
-                if(item.estado === 1) {
-                    item.estadoString = 'En curso';
-                }
-                if(item.estado === 2) {
-                    item.estadoString = 'Pausado';
-                }
-                if(item.estado === 3){
-                    item.estadoString = 'Finalizado';
-                }
-            });
-            setTareas(resp.data);
-        }        
+        const resp = await getByUser(1, 5, 0, 0);
+        if (resp.data) {
+            setTareas(prepareDataTask(resp.data));
+        }
         setLoading(false);
         return resp;
     }
 
     const rows: Tarea[] = tareas;
 
-    const columns: Column<Tarea>[] = [
-        { field: 'nombre', title: 'Nombre', width: 250, filtering: true, sorting: true },
-        { field: 'descripcion', title: 'Descripción', width: 300, sorting: true },
-        { field: 'duracion', title: 'Duración', width: 150, sorting: true },
-        { field: 'tiempo', title: 'Tiempo', width: 150, sorting: true },
-        { field: 'estadoString', title: 'Estado', width: 150, sorting: true },
-        { field: 'creadoString', title: 'Creado', width: 150, sorting: true },
-        { field: 'terminado', title: 'Terminado', width: 150, sorting: true },
-        
-    ];
-
     const handleClickOpen = () => {
+        form.nombre = '';
+        form.descripcion = '';
+        form.horas = 0;
+        form.minutos = 0;
+        form.segundos = 0;
         setOpen(true);
+        setUpdate(false);
     };
 
     const handleClose = () => {
         setOpen(false);
     };
 
-    const onSave = (e: any) => {
+    const onSave = async (e: any) => {
         handleClose();
         e.preventDefault();
-        create(form);
+        await create(form);
+        loadData();
+    }
+
+    const handleOpenUpdate = (rowData: Tarea) => {
+        setOpen(true);
+        setUpdate(true);
+        form.nombre = rowData.nombre;
+        form.descripcion = rowData.descripcion;
+        form.horas = rowData.horas;
+        form.minutos = rowData.minutos;
+        form.segundos = rowData.segundos;  
+    }
+
+    const onUpdate = async (e: any) => {
+        handleClose();
     }
 
     return (
@@ -97,7 +92,7 @@ const HomeScreen = () => {
 
             <div>
                 <Dialog open={open} fullWidth onClose={handleClose} aria-labelledby="form-dialog-title">
-                    <DialogTitle id="form-dialog-title">Crear nueva tarea</DialogTitle>
+                    <DialogTitle id="form-dialog-title">{ update ? 'Actualizar tarea' : 'Crear nueva tarea'}</DialogTitle>
                     <DialogContent>
                         <form noValidate onSubmit={onSave}>
                             <TextField
@@ -105,6 +100,7 @@ const HomeScreen = () => {
                                 margin="dense"
                                 label="Nombre"
                                 type="text"
+                                value={form.nombre}
                                 fullWidth
                                 onChange={(e) => onChange(e.target.value, 'nombre')}
                             />
@@ -112,6 +108,7 @@ const HomeScreen = () => {
                                 margin="dense"
                                 label="Descripción"
                                 type="text"
+                                value={form.descripcion}
                                 fullWidth
                                 multiline
                                 rowsMax={4}
@@ -123,6 +120,7 @@ const HomeScreen = () => {
                                         margin="dense"
                                         label="Horas"
                                         type="number"
+                                        value={form.horas}
                                         onChange={(e) => onChange(e.target.value, 'horas')}
                                     />
                                 </Grid>
@@ -131,6 +129,7 @@ const HomeScreen = () => {
                                         margin="dense"
                                         label="Minutos"
                                         type="number"
+                                        value={form.minutos}
                                         onChange={(e) => onChange(e.target.value, 'minutos')}
                                     />
                                 </Grid>
@@ -139,6 +138,7 @@ const HomeScreen = () => {
                                         margin="dense"
                                         label="Segundos"
                                         type="number"
+                                        value={form.segundos}
                                         onChange={(e) => onChange(e.target.value, 'segundos')}
                                     />
                                 </Grid>
@@ -158,32 +158,50 @@ const HomeScreen = () => {
 
             <div style={{ width: '100%', marginTop: '65px' }}>
                 <MaterialTable
-                    columns={columns}
+                    columns={columnsTask}
                     data={rows}
                     title="mis tareas"
                     isLoading={loading}
                     options={{
                         showTitle: false,
-                        actionsColumnIndex: -1
-                        //search: false,
+                        actionsColumnIndex: -1,
+                        showTextRowsSelected: false
                     }}
-                    localization={{
-                        header: {
-                            actions: 'Acciones'
+                    localization={{ 
+                        header: { actions: 'Acciones' },
+                        pagination: {
+                            firstTooltip: 'Primera página',
+                            lastTooltip: 'Última página',
+                            previousTooltip: 'Página anterior',
+                            nextTooltip: 'Página siguiente',
+                        },
+                        toolbar: {
+                            searchPlaceholder: 'Buscar tarea'
                         }
                     }}
                     actions={[
                         {
-                            icon: 'edit',
-                            tooltip:'Editar tarea',
-                            onClick: (event, rowData) => {console.log(event, rowData)}
+                            icon: 'play_circle_outline',
+                            tooltip: 'Iniciar tarea',
+                            onClick: (e, rowData) => { console.log(rowData) }
                         },
                         {
-                            icon: 'delete',
-                            tooltip:'Eliminar tarea',
-                            onClick: (event, rowData) => {console.log(event, rowData)}
+                            icon: 'stop',
+                            tooltip: 'Finalizar tarea',
+                            onClick: (e, rowData) => { console.log(rowData) }
+                        },
+                        {
+                            icon: 'edit',
+                            tooltip: 'Editar tarea',
+                            onClick: (e, rowData) => { handleOpenUpdate(rowData as Tarea) }
+                        },
+                        {
+                            icon: 'delete_outline',
+                            tooltip: 'Eliminar tarea',
+                            onClick: (e, rowData) => { console.log(rowData) }
                         },
                     ]}
+                    onChangePage={(page, pageNumber) => console.log('cambio pagina', page, pageNumber)}
                 />
             </div>
         </div >
