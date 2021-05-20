@@ -11,6 +11,7 @@ import { prepareDataTask } from '../functions/prepareDataTask';
 const HomeScreen = () => {
 
     const initialForm = {
+        _id: '',
         nombre: '',
         descripcion: '',
         horas: 0,
@@ -18,9 +19,9 @@ const HomeScreen = () => {
         segundos: 0
     }
 
-    const [update, setUpdate] = useState(false);
+    const [handleUpdate, setHandleUpdate] = useState(false);
     const { form, onChange } = useForm(initialForm);
-    const { create, getByUser } = useTask();
+    const { getByUser, create, update } = useTask();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
@@ -48,15 +49,11 @@ const HomeScreen = () => {
         form.minutos = 0;
         form.segundos = 0;
         setOpen(true);
-        setUpdate(false);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
+        setHandleUpdate(false);
     };
 
     const onSave = async (e: any) => {
-        handleClose();
+        setOpen(false);
         e.preventDefault();
         await create(form);
         loadData();
@@ -64,16 +61,20 @@ const HomeScreen = () => {
 
     const handleOpenUpdate = (rowData: Tarea) => {
         setOpen(true);
-        setUpdate(true);
+        setHandleUpdate(true);
+        form._id = rowData._id!;
         form.nombre = rowData.nombre;
         form.descripcion = rowData.descripcion;
         form.horas = rowData.horas;
         form.minutos = rowData.minutos;
-        form.segundos = rowData.segundos;  
+        form.segundos = rowData.segundos;
     }
 
     const onUpdate = async (e: any) => {
-        handleClose();
+        setOpen(false);
+        e.preventDefault();
+        await update(form);
+        loadData();
     }
 
     return (
@@ -91,8 +92,8 @@ const HomeScreen = () => {
             </Fab>
 
             <div>
-                <Dialog open={open} fullWidth onClose={handleClose} aria-labelledby="form-dialog-title">
-                    <DialogTitle id="form-dialog-title">{ update ? 'Actualizar tarea' : 'Crear nueva tarea'}</DialogTitle>
+                <Dialog open={open} fullWidth onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
+                    <DialogTitle id="form-dialog-title">{handleUpdate ? 'Actualizar tarea' : 'Crear nueva tarea'}</DialogTitle>
                     <DialogContent>
                         <form noValidate onSubmit={onSave}>
                             <TextField
@@ -146,10 +147,10 @@ const HomeScreen = () => {
                         </form>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose} color="primary">
+                        <Button onClick={() => setOpen(false)} color="primary">
                             Cancelar
                          </Button>
-                        <Button onClick={onSave} color="primary">
+                        <Button onClick={handleUpdate ? onUpdate : onSave} color="primary">
                             Guardar
                         </Button>
                     </DialogActions>
@@ -162,12 +163,13 @@ const HomeScreen = () => {
                     data={rows}
                     title="mis tareas"
                     isLoading={loading}
+                    //totalCount={20}
                     options={{
                         showTitle: false,
                         actionsColumnIndex: -1,
                         showTextRowsSelected: false
                     }}
-                    localization={{ 
+                    localization={{
                         header: { actions: 'Acciones' },
                         pagination: {
                             firstTooltip: 'Primera página',
