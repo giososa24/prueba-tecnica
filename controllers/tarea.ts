@@ -19,7 +19,7 @@ export const tareaController = {
         const optionsPaginate = {
             page,
             limit,
-        };        
+        };
 
         try {
 
@@ -124,6 +124,83 @@ export const tareaController = {
         }
     },
 
+    createRandom: async (req: Request, res: Response) => {
+
+        try {
+
+            const idUsuario = req.params.idUsuario;
+            let tareaIndice = await TareaModel.find({ usuario: idUsuario });          
+
+            for (let i = 0; i < 50; i++) {
+
+                let tareaNueva: ITarea = new TareaModel();
+
+                const daysRandom = Math.floor(Math.random() * (8 - 2) + 1);
+                const dateRandomCreated = moment().subtract(daysRandom, 'days').unix();
+                const dateRandomFinished = moment().subtract(daysRandom - 1, 'days').unix();
+
+                const horas = Math.floor(Math.random() * (2 - 0) + 0);
+                let minutos = Math.floor(Math.random() * (60 - 15) + 15);
+                let segundos = Math.floor(Math.random() * (60 - 0) + 0);
+                let horasEnd: number = 0;
+                let minutosEnd: number = 0;
+                let segundosEnd: number = 0;
+
+                const porcentaje = Math.random() * (1 - 0.8) + 0.8;
+                let totalTime: number = 0;
+                let totalTimeEnd: number = 0;
+
+                if (horas === 0) {
+                    totalTime = minutos + (segundos / 60);
+                }
+                if (horas === 1) {
+                    totalTime = minutos + 60 + (segundos / 60);
+                }
+                if (horas === 2) {
+                    totalTime = 120;
+                    minutos = 0;
+                    segundos = 0;
+                }
+
+                totalTimeEnd = totalTime * porcentaje;
+                segundosEnd = Math.floor((totalTimeEnd - parseInt(totalTimeEnd.toString(), 10)) * 60);
+
+                if (totalTimeEnd >= 60) {
+                    horasEnd = 1;
+                    minutosEnd = Math.floor(totalTimeEnd - 60);
+                } else {
+                    minutosEnd = Math.floor(totalTimeEnd);
+                }
+
+                tareaNueva.usuario = req.params.idUsuario;
+                tareaNueva.nombre = `Tarea ${(i + 1) + tareaIndice.length}`;
+                tareaNueva.descripcion = `Descripción de la tarea ${(i + 1) + tareaIndice.length}`;
+                tareaNueva.horas = horas;
+                tareaNueva.minutos = minutos;
+                tareaNueva.segundos = segundos;
+                tareaNueva.tiempoHoras = horasEnd;
+                tareaNueva.tiempoMinutos = minutosEnd;
+                tareaNueva.tiempoSegundos = segundosEnd;
+                tareaNueva.estado = 3;
+                tareaNueva.creado = dateRandomCreated;
+                tareaNueva.terminado = dateRandomFinished;
+                tareaNueva.activo = true;
+
+                await tareaNueva.save();  
+            }
+
+            return res.status(202).send({
+                status: true,
+                message: 'Tareas almacenadas correctamente',
+            });
+
+        } catch (error) {
+            return res.status(500).send({
+                message: 'Ha surgido un error, contacte al administrador',
+            });
+        }
+    },
+
     update: async (req: Request, res: Response) => {
 
         try {
@@ -206,6 +283,55 @@ export const tareaController = {
         }
     },
 
+    changeState: async (req: Request, res: Response) => {
+
+        try {
+
+            const body: ITarea = req.body;
+
+            const tareaFindCurrent = await TareaModel.findOne({ estado: 1, activo: true });
+
+            if (tareaFindCurrent && body.estado === 1 && tareaFindCurrent._id !== body._id) {
+                return res.status(200).send({
+                    status: false,
+                    message: 'Ya existe una tarea en curso',
+                });
+            } else {
+                const tareaFind = await TareaModel.findOne({ _id: body._id, activo: true });
+
+                if (tareaFind) {
+
+                    tareaFind.estado = body.estado;
+
+                    const tareaUpdated = await TareaModel.findByIdAndUpdate(tareaFind._id, tareaFind);
+
+                    if (tareaUpdated) {
+                        return res.status(202).send({
+                            status: true,
+                            message: 'Tarea actualizada correctamente',
+                        });
+                    } else {
+                        return res.status(200).send({
+                            status: false,
+                            message: 'Surgió un error al actualizar la tarea',
+                        });
+                    }
+
+                } else {
+                    return res.status(200).send({
+                        status: false,
+                        message: 'La tarea que intentas actualizar no existe',
+                    });
+                }
+            }
+
+        } catch (error) {
+            return res.status(500).send({
+                message: 'Ha surgido un error, contacte al administrador',
+            });
+        }
+    },
+
     filterByWeek: async (req: Request, res: Response) => {
 
         try {
@@ -221,7 +347,7 @@ export const tareaController = {
                 let tareas: ITarea[] = [];
 
                 tareasFind.forEach(tarea => {
-                    if (Date.parse(moment(tarea.creado).format("YYYY-MM-DD")) >= fechaInicial && Date.parse(moment(tarea.creado).format("YYYY-MM-DD")) <= fechaFinal) {
+                    if (Date.parse(moment(tarea.terminado).format("YYYY-MM-DD")) >= fechaInicial && Date.parse(moment(tarea.terminado).format("YYYY-MM-DD")) <= fechaFinal) {
                         tareas.push(tarea);
                     }
                 });

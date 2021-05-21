@@ -8,9 +8,13 @@ tareaRoutes.get('/get-by-user/:id/:page/:limit/:estado/:duracion', [ensureAuth],
 
 tareaRoutes.post('/create', [ensureAuth], tareaController.create);
 
+tareaRoutes.get('/create-random/:idUsuario', [ensureAuth], tareaController.createRandom);
+
 tareaRoutes.put('/update', [ensureAuth], tareaController.update);
 
 tareaRoutes.delete('/delete/:id', [ensureAuth], tareaController.delete);
+
+tareaRoutes.put('/change-state', [ensureAuth], tareaController.changeState);
 
 tareaRoutes.get('/filter-by-week', [ensureAuth], tareaController.filterByWeek);
 
