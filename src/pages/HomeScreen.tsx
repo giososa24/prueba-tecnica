@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles } from '@material-ui/core';
+import DateFnsUtils from '@date-io/date-fns';
+import { TimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import MaterialTable from 'material-table';
-import AddIcon from '@material-ui/icons/Add';
 import { useForm } from '../hooks/useForm';
 import { useTask } from '../hooks/useTask';
 import Tarea from '../interfaces/tarea';
@@ -30,13 +31,14 @@ const HomeScreen = () => {
     const [completeTasks, setCompleteTasks] = useState(false);
     const [openSelect, setOpenSelect] = useState(false);
     const [duration, setDuration] = useState<string | number>('');
+    const [selectedDate, setDateChange] = useState(new Date());
     const [filters, setFilters] = useState(initialFilters);
     const [handleUpdate, setHandleUpdate] = useState(false);
-    const { form, onChange } = useForm(initialForm);
-    const { getByUser, create, update, Delete } = useTask();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
+    const { form, onChange } = useForm(initialForm);
+    const { getByUser, create, update, Delete } = useTask();
 
     const classes = useStyles();
 
@@ -82,6 +84,10 @@ const HomeScreen = () => {
         form.horas = 0;
         form.minutos = 0;
         form.segundos = 0;
+
+        const duration = `${form.horas}:${form.minutos}:${form.segundos}`;
+        setDateChange(new Date(`2021/05/20 ${duration}`));
+
         setOpen(true);
         setHandleUpdate(false);
     };
@@ -95,6 +101,9 @@ const HomeScreen = () => {
         form.horas = rowData.horas;
         form.minutos = rowData.minutos;
         form.segundos = rowData.segundos;
+
+        const duration = `${form.horas}:${form.minutos}:${form.segundos}`;
+        setDateChange(new Date(`2021/05/20 ${duration}`));
     }
 
     const handleChangeSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -110,8 +119,11 @@ const HomeScreen = () => {
     }
 
     const onSave = async (e: any) => {
-        const { page, pageNumber, estado, duracion } = filters;
-
+        const { page, pageNumber, estado, duracion } = filters;        
+        form.horas = selectedDate.getHours();
+        form.minutos = selectedDate.getMinutes();
+        form.segundos = selectedDate.getSeconds();      
+         
         setOpen(false);
         e.preventDefault();
         await create(form);
@@ -120,6 +132,9 @@ const HomeScreen = () => {
 
     const onUpdate = async (e: any) => {
         const { page, pageNumber, estado, duracion } = filters;
+        form.horas = selectedDate.getHours();
+        form.minutos = selectedDate.getMinutes();
+        form.segundos = selectedDate.getSeconds();
 
         setOpen(false);
         e.preventDefault();
@@ -140,6 +155,7 @@ const HomeScreen = () => {
         <div style={{ padding: '3em' }}>
             <h1>Mis tareas</h1>
             <hr />
+
             <FormControlLabel
                 control={<Switch checked={completeTasks} onChange={handleChangeSwitch} color="primary" />}
                 label="Tareas completadas"
@@ -184,35 +200,18 @@ const HomeScreen = () => {
                                 rowsMax={4}
                                 onChange={(e) => onChange(e.target.value, 'descripcion')}
                             />
-                            <Grid container spacing={5}>
-                                <Grid container item xs={4}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Horas"
-                                        type="number"
-                                        value={form.horas}
-                                        onChange={(e) => onChange(e.target.value, 'horas')}
-                                    />
-                                </Grid>
-                                <Grid container item xs={4}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Minutos"
-                                        type="number"
-                                        value={form.minutos}
-                                        onChange={(e) => onChange(e.target.value, 'minutos')}
-                                    />
-                                </Grid>
-                                <Grid container item xs={4}>
-                                    <TextField
-                                        margin="dense"
-                                        label="Segundos"
-                                        type="number"
-                                        value={form.segundos}
-                                        onChange={(e) => onChange(e.target.value, 'segundos')}
-                                    />
-                                </Grid>
-                            </Grid>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <TimePicker
+                                    style={{ marginTop: '6px' }}
+                                    ampm={false}
+                                    openTo="hours"
+                                    views={["hours", "minutes", "seconds"]}
+                                    format="HH:mm:ss"
+                                    label="Duración"
+                                    value={selectedDate}
+                                    onChange={setDateChange}
+                                />
+                            </MuiPickersUtilsProvider>
                         </form>
                     </DialogContent>
                     <DialogActions>
