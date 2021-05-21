@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles, Fab } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
 import DateFnsUtils from '@date-io/date-fns';
 import { TimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import MaterialTable from 'material-table';
@@ -38,7 +39,7 @@ const HomeScreen = () => {
     const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
     const { form, onChange } = useForm(initialForm);
-    const { getByUser, create, update, Delete } = useTask();
+    const { getByUser, create, createRandom, update, Delete } = useTask();
 
     const classes = useStyles();
 
@@ -50,7 +51,7 @@ const HomeScreen = () => {
     const loadData = async (page: number, limit: number, estado: number, duracion: number) => {
         setLoading(true);
         const resp = await getByUser(page, limit, estado, duracion);
-        if (resp.data) {
+        if (resp && resp.data) {
             setTareas(prepareDataTask(resp.data));
             if (resp.pagination) {
                 setFilters({
@@ -119,15 +120,24 @@ const HomeScreen = () => {
     }
 
     const onSave = async (e: any) => {
-        const { page, pageNumber, estado, duracion } = filters;        
+        const { page, pageNumber, estado, duracion } = filters;
         form.horas = selectedDate.getHours();
         form.minutos = selectedDate.getMinutes();
-        form.segundos = selectedDate.getSeconds();      
-         
+        form.segundos = selectedDate.getSeconds();
+
         setOpen(false);
         e.preventDefault();
         await create(form);
         await loadData(page, pageNumber, estado, duracion);
+    }
+
+    const onSaveRandom = async () => {
+        const { page, pageNumber, estado, duracion } = filters;
+
+        if (await confirmDialg('¡Agregarás 50 tareas!', 'Sí, agregar')) {
+            await createRandom();
+            await loadData(page, pageNumber, estado, duracion);
+        }
     }
 
     const onUpdate = async (e: any) => {
@@ -145,7 +155,7 @@ const HomeScreen = () => {
     const onDelete = async (rowData: Tarea) => {
         const { page, pageNumber, estado, duracion } = filters;
 
-        if (await confirmDialg()) {
+        if (await confirmDialg('¡Eliminarás la tarea seleccionada!', 'Sí, eliminar')) {
             await Delete(rowData._id!);
             await loadData(page, pageNumber, estado, duracion);
         }
@@ -154,6 +164,17 @@ const HomeScreen = () => {
     return (
         <div style={{ padding: '3em' }}>
             <h1>Mis tareas</h1>
+            <Fab
+                variant="extended"
+                size="small"
+                color="primary"
+                aria-label="add"
+                style={{ float: 'right', marginTop: '-55px' }}
+                onClick={onSaveRandom}
+            >
+                <AddIcon />
+                50 tareas
+            </Fab>
             <hr />
 
             <FormControlLabel

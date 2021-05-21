@@ -1,4 +1,4 @@
-import { createTask, getByUserTask, updateTask, deleteTask } from '../actions/task';
+import { createTask, getByUserTask, updateTask, deleteTask, createTaskRandom } from '../actions/task';
 import { errorMessage, successMessage } from "../functions/Swal";
 import Tarea from "../interfaces/tarea";
 import { Usuario } from "../interfaces/usuario";
@@ -13,11 +13,16 @@ export const useTask = () => {
 
     const getByUser = async (page: number, limit: number, estado: number, duracion: number) => {
 
-        const resp = await getByUserTask(usuario._id, page, limit, estado, duracion);
-        if (resp.data.status === false) {
-            errorMessage(resp.data.message);
+        try {
+            const resp = await getByUserTask(usuario._id, page, limit, estado, duracion);
+            if (resp.data.status === false) {
+                errorMessage(resp.data.message);
+            }
+            return resp.data;
+        } catch (error) {
+            errorMessage('Ha surgido un error, favor contacte al administrador');
         }
-        return resp.data;
+
     }
 
     const create = async (tarea: Tarea) => {
@@ -33,6 +38,21 @@ export const useTask = () => {
                 } else {
                     errorMessage(resp.data.message);
                 }
+            }
+        } catch (error) {
+            errorMessage('Ha surgido un error, favor contacte al administrador');
+        }
+    }
+
+    const createRandom = async () => {
+
+        try {
+            const resp = await createTaskRandom(usuario._id);
+
+            if (resp.data.status !== false) {
+                successMessage(resp.data.message);
+            } else {
+                errorMessage(resp.data.message);
             }
         } catch (error) {
             errorMessage('Ha surgido un error, favor contacte al administrador');
@@ -87,6 +107,7 @@ export const useTask = () => {
 
     return {
         create,
+        createRandom,
         getByUser,
         update,
         Delete,

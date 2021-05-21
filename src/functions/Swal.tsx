@@ -6,7 +6,7 @@ export const successMessage = (title: string) => {
         icon: 'success',
         title,
         showConfirmButton: false,
-        timer: 1500
+        timer: 2500
     });
 }
 
@@ -16,20 +16,20 @@ export const errorMessage = (title: string) => {
         icon: 'error',
         title,
         showConfirmButton: false,
-        timer: 1500
+        timer: 2500
     });
 }
 
-export const confirmDialg = async() => {
+export const confirmDialg = async(text: string, comfirmText: string) => {
     let resp = false;
     resp = await Swal.fire({
         title: '¿Estás seguro?',
-        text: "Eliminarás la tarea seleccionada",
+        text,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar!',
+        confirmButtonText: comfirmText,
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {

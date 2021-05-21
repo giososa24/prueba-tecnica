@@ -13,6 +13,11 @@ export const createTask = (tarea: Tarea) => {
     return tareaApi.post<Response<Tarea>>('/tarea/create', tarea);
 }
 
+export const createTaskRandom = (idUsuario: string) => {
+
+    return tareaApi.get<Response<Tarea>>(`/tarea/create-random/${idUsuario}`);
+}
+
 export const updateTask = (tarea: Tarea) => {
 
     return tareaApi.put<Response<Tarea>>('/tarea/update', tarea);
