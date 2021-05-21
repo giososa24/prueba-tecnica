@@ -136,8 +136,8 @@ export const tareaController = {
                 let tareaNueva: ITarea = new TareaModel();
 
                 const daysRandom = Math.floor(Math.random() * (8 - 2) + 1);
-                const dateRandomCreated = moment().subtract(daysRandom, 'days').unix();
-                const dateRandomFinished = moment().subtract(daysRandom - 1, 'days').unix();
+                const dateRandomCreated = Date.parse(moment().subtract(daysRandom, 'days').format('llll'));
+                const dateRandomFinished = Date.parse(moment().subtract(daysRandom - 1, 'days').format('llll'));
 
                 const horas = Math.floor(Math.random() * (2 - 0) + 0);
                 let minutos = Math.floor(Math.random() * (60 - 15) + 15);
