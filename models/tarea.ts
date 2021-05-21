@@ -41,7 +41,7 @@ const tareaSchema = new Schema({
     },
     estado: {
         type: Number,
-        default: 0,
+        default: 1,
     },
     creado: {
         type: Number,
