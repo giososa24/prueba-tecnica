@@ -27,11 +27,11 @@ export const tareaController = {
 
             if (estado === 3) {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, estado: 3, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
-            } else if (duracion > 0 && duracion <= 30) {
+            } else if (duracion === 1) {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, minutos: { $gt: 0, $lt: 30 }, horas: { $lte: 0 }, segundos: { $gte: 0 }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
-            } else if (duracion > 30 && duracion <= 60) {
+            } else if (duracion === 2) {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, minutos: { $gte: 30, $lt: 59 }, horas: { $lte: 0 }, segundos: { $gte: 0 }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
-            } else if (duracion > 60 && duracion <= 120) {
+            } else if (duracion === 3) {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, horas: { $gte: 1 }, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
             } else {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, activo: true }, { '__v': 0 }, { sort: { created: 1 } }), optionsPaginate);
