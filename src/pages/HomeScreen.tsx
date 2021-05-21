@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField } from '@material-ui/core';
+import React, { ChangeEvent, useEffect, useState } from 'react';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles } from '@material-ui/core';
 import MaterialTable from 'material-table';
 import AddIcon from '@material-ui/icons/Add';
 import { useForm } from '../hooks/useForm';
@@ -11,10 +11,10 @@ import { confirmDialg } from '../functions/Swal';
 
 const HomeScreen = () => {
 
-    const filters = {
+    const initialFilters = {
         page: 1,
         pageNumber: 5,
-        totalPages: 0,
+        totalDocs: 0,
         estado: 0,
         duracion: 0,
     }
@@ -26,13 +26,19 @@ const HomeScreen = () => {
         minutos: 0,
         segundos: 0
     }
-    const [pagination, setPagination] = useState(filters);
+
+    const [completeTasks, setCompleteTasks] = useState(false);
+    const [openSelect, setOpenSelect] = useState(false);
+    const [duration, setDuration] = useState<string | number>('');
+    const [filters, setFilters] = useState(initialFilters);
     const [handleUpdate, setHandleUpdate] = useState(false);
     const { form, onChange } = useForm(initialForm);
     const { getByUser, create, update, Delete } = useTask();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
+
+    const classes = useStyles();
 
     useEffect(() => {
         const { page, pageNumber, estado, duracion } = filters;
@@ -45,22 +51,30 @@ const HomeScreen = () => {
         if (resp.data) {
             setTareas(prepareDataTask(resp.data));
             if (resp.pagination) {
-                setPagination({
+                setFilters({
                     page: resp.pagination?.page,
                     pageNumber: resp.pagination?.limit,
-                    totalPages: resp.pagination?.totalDocs,
-                    estado: 0,
-                    duracion: 0
+                    totalDocs: resp.pagination?.totalDocs,
+                    estado,
+                    duracion,
                 });
             }
+        } else {
+            setTareas([]);
+            setFilters({ ...initialFilters, pageNumber: limit, estado, duracion });
         }
         setLoading(false);
     }
 
-    const onPage = async (page: number, pageNumber: number) => {
-        const { estado, duracion } = filters;
-        loadData(page, pageNumber, estado, duracion);
-    }
+    const handleChangeSwitch = () => {
+        setCompleteTasks(!completeTasks);
+        const { pageNumber, estado, duracion } = filters;
+        if (!completeTasks) {
+            loadData(1, pageNumber, 3, duracion);
+        } else {
+            loadData(1, pageNumber, 0, duracion);
+        }
+    };
 
     const handleClickOpen = () => {
         form.nombre = '';
@@ -72,15 +86,6 @@ const HomeScreen = () => {
         setHandleUpdate(false);
     };
 
-    const onSave = async (e: any) => {
-        const { page, pageNumber, estado, duracion } = filters;
-
-        setOpen(false);
-        e.preventDefault();
-        await create(form);
-        await loadData(page, pageNumber, estado, duracion);
-    }
-
     const handleOpenUpdate = (rowData: Tarea) => {
         setOpen(true);
         setHandleUpdate(true);
@@ -90,6 +95,28 @@ const HomeScreen = () => {
         form.horas = rowData.horas;
         form.minutos = rowData.minutos;
         form.segundos = rowData.segundos;
+    }
+
+    const handleChangeSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
+        const duration = event.target.value as number;
+        setDuration(duration);
+        console.log(duration);
+        const { pageNumber, estado } = filters;
+        loadData(1, pageNumber, estado, duration);
+    };
+
+    const onPage = async (page: number, pageNumber: number) => {
+        const { estado, duracion } = filters;
+        loadData(page, pageNumber, estado, duracion);
+    }
+
+    const onSave = async (e: any) => {
+        const { page, pageNumber, estado, duracion } = filters;
+
+        setOpen(false);
+        e.preventDefault();
+        await create(form);
+        await loadData(page, pageNumber, estado, duracion);
     }
 
     const onUpdate = async (e: any) => {
@@ -114,7 +141,26 @@ const HomeScreen = () => {
         <div style={{ padding: '3em' }}>
             <h1>Mis tareas</h1>
             <hr />
-
+            <FormControlLabel
+                control={<Switch checked={completeTasks} onChange={handleChangeSwitch} name="checkedA" color="primary" />}
+                label="Tareas completadas"
+            />
+            <FormControl className={classes.formControl}>
+                <InputLabel id="duration-label">Duración</InputLabel>
+                <Select
+                    labelId="duration-label"
+                    open={openSelect}
+                    onClose={() => setOpenSelect(false)}
+                    onOpen={() => setOpenSelect(true)}
+                    value={duration}
+                    onChange={handleChangeSelect}
+                >
+                    <MenuItem value={0}>Todos</MenuItem>
+                    <MenuItem value={1}>hasta 30 min</MenuItem>
+                    <MenuItem value={2}>de 30 min a 1h</MenuItem>
+                    <MenuItem value={3}>mayor a 1h</MenuItem>
+                </Select>
+            </FormControl>
             <Fab color="primary"
                 aria-label="add"
                 size="small"
@@ -190,14 +236,14 @@ const HomeScreen = () => {
                 </Dialog>
             </div>
 
-            <div style={{ width: '100%', marginTop: '65px' }}>
+            <div style={{ width: '100%', marginTop: '20px' }}>
                 <MaterialTable
                     columns={columnsTask}
                     data={tareas}
                     title="mis tareas"
                     isLoading={loading}
-                    totalCount={pagination.totalPages}
-                    page={pagination.page - 1}
+                    totalCount={filters.totalDocs}
+                    page={filters.page - 1}
                     options={{
                         showTitle: false,
                         actionsColumnIndex: -1,
@@ -213,6 +259,9 @@ const HomeScreen = () => {
                         },
                         toolbar: {
                             searchPlaceholder: 'Buscar tarea'
+                        },
+                        body: {
+                            emptyDataSourceMessage: 'No hay tareas registradas'
                         }
                     }}
                     actions={[
@@ -245,3 +294,13 @@ const HomeScreen = () => {
 }
 
 export default HomeScreen;
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        formControl: {
+            margin: theme.spacing(1),
+            minWidth: 120,
+            marginTop: -8
+        },
+    }),
+);
