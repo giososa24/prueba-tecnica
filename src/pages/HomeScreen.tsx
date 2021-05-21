@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles } from '@material-ui/core';
 import MaterialTable from 'material-table';
 import AddIcon from '@material-ui/icons/Add';
 import { useForm } from '../hooks/useForm';
@@ -160,15 +160,6 @@ const HomeScreen = () => {
                     <MenuItem value={3}>mayor a 1h</MenuItem>
                 </Select>
             </FormControl>
-            <Fab color="primary"
-                aria-label="add"
-                size="small"
-                style={{ marginTop: '5px', float: 'right' }}
-                onClick={handleClickOpen}
-            >
-                <AddIcon />
-            </Fab>
-
             <div>
                 <Dialog open={open} fullWidth onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
                     <DialogTitle id="form-dialog-title">{handleUpdate ? 'Actualizar tarea' : 'Crear nueva tarea'}</DialogTitle>
@@ -246,7 +237,7 @@ const HomeScreen = () => {
                     options={{
                         showTitle: false,
                         actionsColumnIndex: -1,
-                        showTextRowsSelected: false
+                        showTextRowsSelected: false,
                     }}
                     localization={{
                         header: { actions: 'Acciones' },
@@ -260,30 +251,42 @@ const HomeScreen = () => {
                             searchPlaceholder: 'Buscar tarea'
                         },
                         body: {
-                            emptyDataSourceMessage: 'No hay tareas registradas'
-                        }
+                            emptyDataSourceMessage: 'No hay tareas registradas',
+                        },
                     }}
                     actions={[
-                        {
+                        rowData => ({
                             icon: 'play_circle_outline',
                             tooltip: 'Iniciar tarea',
-                            onClick: (e, rowData) => { console.log(rowData) }
-                        },
-                        {
+                            position: 'auto',
+                            onClick: (e, rowData) => { console.log(rowData) },
+                            hidden: rowData.estado! > 0
+                        }),
+                        rowData => ({
                             icon: 'stop',
                             tooltip: 'Finalizar tarea',
-                            onClick: (e, rowData) => { console.log(rowData) }
-                        },
+                            position: 'auto',
+                            onClick: (e, rowData) => { console.log(rowData) },
+                            hidden: rowData.estado! > 0
+                        }),
                         {
                             icon: 'edit',
                             tooltip: 'Editar tarea',
+                            position: 'auto',
                             onClick: (e, rowData) => { handleOpenUpdate(rowData as Tarea) }
                         },
                         {
                             icon: 'delete_outline',
                             tooltip: 'Eliminar tarea',
+                            position: 'row',
                             onClick: (e, rowData) => { onDelete(rowData as Tarea) }
                         },
+                        {
+                            icon: 'add',
+                            tooltip: 'Agregar tarea',
+                            isFreeAction: true,
+                            onClick: () => { handleClickOpen() }
+                        }
                     ]}
                     onChangePage={async (page, pageNumber) => { await onPage(page + 1, pageNumber) }}
                 />

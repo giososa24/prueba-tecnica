@@ -29,7 +29,8 @@ export const confirmDialg = async() => {
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar!'
+        confirmButtonText: 'Sí, eliminar!',
+        cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             return resp = true;
@@ -37,7 +38,7 @@ export const confirmDialg = async() => {
             return resp = false;
         }
     });
-    
+
     return resp;
 }
 
