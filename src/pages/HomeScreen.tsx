@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, Grid, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles } from '@material-ui/core';
 import MaterialTable from 'material-table';
 import AddIcon from '@material-ui/icons/Add';
@@ -68,7 +68,7 @@ const HomeScreen = () => {
 
     const handleChangeSwitch = () => {
         setCompleteTasks(!completeTasks);
-        const { pageNumber, estado, duracion } = filters;
+        const { pageNumber, duracion } = filters;
         if (!completeTasks) {
             loadData(1, pageNumber, 3, duracion);
         } else {
@@ -100,7 +100,6 @@ const HomeScreen = () => {
     const handleChangeSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
         const duration = event.target.value as number;
         setDuration(duration);
-        console.log(duration);
         const { pageNumber, estado } = filters;
         loadData(1, pageNumber, estado, duration);
     };
@@ -142,7 +141,7 @@ const HomeScreen = () => {
             <h1>Mis tareas</h1>
             <hr />
             <FormControlLabel
-                control={<Switch checked={completeTasks} onChange={handleChangeSwitch} name="checkedA" color="primary" />}
+                control={<Switch checked={completeTasks} onChange={handleChangeSwitch} color="primary" />}
                 label="Tareas completadas"
             />
             <FormControl className={classes.formControl}>
