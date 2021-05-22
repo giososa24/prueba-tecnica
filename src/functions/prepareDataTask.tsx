@@ -7,12 +7,14 @@ import 'moment/locale/es-mx';
 export const prepareDataTask = (tareas: Tarea[]) => {
     tareas.forEach((item) => {
         if(item.terminado){
-            item.terminadoString = moment(item.terminado).startOf('second').fromNow();
+            //item.terminadoString = moment(item.terminado).startOf('second').fromNow();
+            item.terminadoString = moment(item.terminado).format('lll');
         } else {
             item.terminadoString = '';
         }
         if(item.iniciado) {
-            item.iniciadoString = moment(item.iniciado).startOf('second').fromNow();
+            //item.iniciadoString = moment(item.iniciado).startOf('second').fromNow();
+            item.iniciadoString = moment(item.iniciado).format('lll');
         } else {
             item.iniciadoString = '';
         }
