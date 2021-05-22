@@ -167,6 +167,7 @@ const HomeScreen = () => {
             title = '¡Estás seguro de finalizar esta tarea!';
             confirmTitle = 'Sí, finalizar';
             tarea.estado = 3;
+            //Igualar los valores a los del contador
         }
 
         if (await confirmDialg(title, confirmTitle)) {
@@ -305,32 +306,36 @@ const HomeScreen = () => {
                             tooltip: 'Iniciar tarea',
                             position: 'auto',
                             onClick: () => { onChangeState(0, rowData as Tarea) },
-                            hidden: rowData.estado! === 0 || rowData.estado! === 3
+                            hidden: rowData.estado! === 0 || rowData.estado! === 3,
+                            iconProps: { style: {color: '#2655FF'}}
                         }),
                         rowData => ({
                             icon: 'stop',
                             tooltip: 'Finalizar tarea',
                             position: 'auto',
-                            onClick: (e, rowData) => { console.log(rowData) },
-                            hidden: rowData.estado! !== 0
+                            onClick: () => { onChangeState(3, rowData as Tarea) },
+                            hidden: rowData.estado! !== 0,
                         }),
                         {
                             icon: 'edit',
                             tooltip: 'Editar tarea',
                             position: 'auto',
-                            onClick: (e, rowData) => { handleOpenUpdate(rowData as Tarea) }
+                            onClick: (e, rowData) => { handleOpenUpdate(rowData as Tarea) },
+                            iconProps: { style: {color: '#E09643'}}
                         },
                         {
                             icon: 'delete_outline',
                             tooltip: 'Eliminar tarea',
                             position: 'row',
-                            onClick: (e, rowData) => { onDelete(rowData as Tarea) }
+                            onClick: (e, rowData) => { onDelete(rowData as Tarea) },
+                            iconProps: { style: {color: 'red'}}
                         },
                         {
                             icon: 'add',
                             tooltip: 'Agregar tarea',
                             isFreeAction: true,
-                            onClick: () => { handleClickOpen() }
+                            onClick: () => { handleClickOpen() },
+                            iconProps: { style: {color: '#17E021'}}
                         }
                     ]}
                     onChangePage={async (page, pageNumber) => { await onPage(page + 1, pageNumber) }}

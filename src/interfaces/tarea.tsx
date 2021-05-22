@@ -16,7 +16,8 @@ export default interface Tarea {
     estado?: number;
     estadoString?: string;
     creado?: number;
-    creadoString?: string;
+    iniciado?: number;
+    iniciadoString?: string;
     terminado?: number;
     terminadoString?: string;
 }

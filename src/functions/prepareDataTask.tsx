@@ -1,16 +1,21 @@
 import moment from 'moment';
 import Tarea from "../interfaces/tarea";
 import { tiempo } from './formatoTiempo';
+import 'moment/locale/es-mx';
 
 
 export const prepareDataTask = (tareas: Tarea[]) => {
     tareas.forEach((item) => {
         if(item.terminado){
-            item.terminadoString = moment(item.terminado).locale('es-mx').format('L');
+            item.terminadoString = moment(item.terminado).startOf('second').fromNow();
         } else {
             item.terminadoString = '';
         }
-        item.creadoString = moment(item.creado).locale('es-mx').format('L');
+        if(item.iniciado) {
+            item.iniciadoString = moment(item.iniciado).startOf('second').fromNow();
+        } else {
+            item.iniciadoString = '';
+        }
         item.duracion = `${tiempo(item.horas)}:${tiempo(item.minutos)}:${tiempo(item.segundos)}`;
         item.tiempo = `${tiempo(item.tiempoHoras!)}:${tiempo(item.tiempoMinutos!)}:${tiempo(item.tiempoSegundos!)}`;
         if (item.estado === 1) {
