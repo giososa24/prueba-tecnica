@@ -5,6 +5,11 @@ import { tiempo } from './formatoTiempo';
 
 export const prepareDataTask = (tareas: Tarea[]) => {
     tareas.forEach((item) => {
+        if(item.terminado){
+            item.terminadoString = moment(item.terminado).locale('es-mx').format('L');
+        } else {
+            item.terminadoString = '';
+        }
         item.creadoString = moment(item.creado).locale('es-mx').format('L');
         item.duracion = `${tiempo(item.horas)}:${tiempo(item.minutos)}:${tiempo(item.segundos)}`;
         item.tiempo = `${tiempo(item.tiempoHoras!)}:${tiempo(item.tiempoMinutos!)}:${tiempo(item.tiempoSegundos!)}`;

@@ -1,4 +1,4 @@
-import { createTask, getByUserTask, updateTask, deleteTask, createTaskRandom } from '../actions/task';
+import { createTask, getByUserTask, updateTask, deleteTask, createTaskRandom, changeStateTask } from '../actions/task';
 import { errorMessage, successMessage } from "../functions/Swal";
 import Tarea from "../interfaces/tarea";
 import { Usuario } from "../interfaces/usuario";
@@ -78,6 +78,23 @@ export const useTask = () => {
         }
     }
 
+    const changeState = async (tarea: Tarea) => {
+
+        try {
+            tarea.usuario = usuario._id;
+
+            const resp = await changeStateTask(tarea);
+
+            if (resp.data.status !== false) {
+                successMessage(resp.data.message);
+            } else {
+                errorMessage(resp.data.message);
+            }
+        } catch (error) {
+            errorMessage('Ha surgido un error, favor contacte al administrador');
+        }
+    }
+
     const Delete = async (idTarea: string) => {
 
         try {
@@ -110,6 +127,7 @@ export const useTask = () => {
         createRandom,
         getByUser,
         update,
+        changeState,
         Delete,
     }
 }

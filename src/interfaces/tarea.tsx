@@ -18,4 +18,5 @@ export default interface Tarea {
     creado?: number;
     creadoString?: string;
     terminado?: number;
+    terminadoString?: string;
 }

@@ -15,7 +15,7 @@ const HomeScreen = () => {
 
     const initialFilters = {
         page: 1,
-        pageNumber: 5,
+        pageNumber: 10,
         totalDocs: 0,
         estado: 0,
         duracion: 0,
@@ -26,7 +26,7 @@ const HomeScreen = () => {
         descripcion: '',
         horas: 0,
         minutos: 0,
-        segundos: 0
+        segundos: 0,
     }
 
     const [completeTasks, setCompleteTasks] = useState(false);
@@ -39,7 +39,7 @@ const HomeScreen = () => {
     const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
     const { form, onChange } = useForm(initialForm);
-    const { getByUser, create, createRandom, update, Delete } = useTask();
+    const { getByUser, create, createRandom, update, changeState, Delete } = useTask();
 
     const classes = useStyles();
 
@@ -152,6 +152,30 @@ const HomeScreen = () => {
         await loadData(page, pageNumber, estado, duracion);
     }
 
+    const onChangeState = async (state: number, tarea: Tarea) => {
+        const { page, pageNumber, estado, duracion } = filters;
+        let title: string = '';
+        let confirmTitle: string = '';
+
+        if (state === 0) {
+            title = '¡Estás seguro de iniciar esta tarea!';
+            confirmTitle = 'Sí, iniciar';
+            tarea.estado = 0;
+        }
+
+        if (state === 3) {
+            title = '¡Estás seguro de finalizar esta tarea!';
+            confirmTitle = 'Sí, finalizar';
+            tarea.estado = 3;
+        }
+
+        if (await confirmDialg(title, confirmTitle)) {
+            await changeState(tarea);
+            await loadData(page, pageNumber, estado, duracion);
+        }
+
+    }
+
     const onDelete = async (rowData: Tarea) => {
         const { page, pageNumber, estado, duracion } = filters;
 
@@ -258,6 +282,7 @@ const HomeScreen = () => {
                         showTitle: false,
                         actionsColumnIndex: -1,
                         showTextRowsSelected: false,
+                        pageSize: filters.pageNumber,
                     }}
                     localization={{
                         header: { actions: 'Acciones' },
@@ -279,15 +304,15 @@ const HomeScreen = () => {
                             icon: 'play_circle_outline',
                             tooltip: 'Iniciar tarea',
                             position: 'auto',
-                            onClick: (e, rowData) => { console.log(rowData) },
-                            hidden: rowData.estado! > 0
+                            onClick: () => { onChangeState(0, rowData as Tarea) },
+                            hidden: rowData.estado! === 0 || rowData.estado! === 3
                         }),
                         rowData => ({
                             icon: 'stop',
                             tooltip: 'Finalizar tarea',
                             position: 'auto',
                             onClick: (e, rowData) => { console.log(rowData) },
-                            hidden: rowData.estado! > 0
+                            hidden: rowData.estado! !== 0
                         }),
                         {
                             icon: 'edit',

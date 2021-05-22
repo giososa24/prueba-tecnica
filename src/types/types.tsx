@@ -23,6 +23,6 @@ export const columnsTask: Column<Tarea>[] = [
     { field: 'tiempo', title: 'Tiempo', width: 150, sorting: true },
     { field: 'estadoString', title: 'Estado', width: 150, sorting: true },
     { field: 'creadoString', title: 'Creado', width: 150, sorting: true },
-    { field: 'terminado', title: 'Terminado', width: 150, sorting: true },
+    { field: 'terminadoString', title: 'Terminado', width: 150, sorting: true },
 
 ];
