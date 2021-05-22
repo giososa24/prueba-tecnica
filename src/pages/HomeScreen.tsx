@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles, Fab } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles, Fab, Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DateFnsUtils from '@date-io/date-fns';
 import { TimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
@@ -30,8 +30,11 @@ const HomeScreen = () => {
     }
 
     const [completeTasks, setCompleteTasks] = useState(false);
+    const [establishedDuration, setEstablishedDuration] = useState(false);
     const [openSelect, setOpenSelect] = useState(false);
+    const [openSelectDuration, setOpenSelectDuration] = useState(false);
     const [duration, setDuration] = useState<string | number>('');
+    const [durationEstablished, setDurationEstablished] = useState(0);
     const [selectedDate, setDateChange] = useState(new Date());
     const [filters, setFilters] = useState(initialFilters);
     const [handleUpdate, setHandleUpdate] = useState(false);
@@ -86,11 +89,9 @@ const HomeScreen = () => {
         form.minutos = 0;
         form.segundos = 0;
 
-        const duration = `${form.horas}:${form.minutos}:${form.segundos}`;
-        setDateChange(new Date(`2021/05/20 ${duration}`));
-
         setOpen(true);
         setHandleUpdate(false);
+        handleChangeDate();
     };
 
     const handleOpenUpdate = (rowData: Tarea) => {
@@ -102,7 +103,10 @@ const HomeScreen = () => {
         form.horas = rowData.horas;
         form.minutos = rowData.minutos;
         form.segundos = rowData.segundos;
+        handleChangeDate();
+    }
 
+    const handleChangeDate = () => {
         const duration = `${form.horas}:${form.minutos}:${form.segundos}`;
         setDateChange(new Date(`2021/05/20 ${duration}`));
     }
@@ -121,9 +125,7 @@ const HomeScreen = () => {
 
     const onSave = async (e: any) => {
         const { page, pageNumber, estado, duracion } = filters;
-        form.horas = selectedDate.getHours();
-        form.minutos = selectedDate.getMinutes();
-        form.segundos = selectedDate.getSeconds();
+        setDurationSave();
 
         setOpen(false);
         e.preventDefault();
@@ -140,11 +142,30 @@ const HomeScreen = () => {
         }
     }
 
+    const setDurationSave = () => {
+        if (!establishedDuration) {
+            form.horas = selectedDate.getHours();
+            form.minutos = selectedDate.getMinutes();
+            form.segundos = selectedDate.getSeconds();
+        } else {
+            form.segundos = 0;
+            form.horas = 0;
+            form.minutos = 0;
+            if (durationEstablished === 0) {
+                form.minutos = 30;
+            }
+            if (durationEstablished === 1) {
+                form.minutos = 45;
+            }
+            if (durationEstablished === 2) {
+                form.horas = 1;
+            }
+        }
+    }
+
     const onUpdate = async (e: any) => {
         const { page, pageNumber, estado, duracion } = filters;
-        form.horas = selectedDate.getHours();
-        form.minutos = selectedDate.getMinutes();
-        form.segundos = selectedDate.getSeconds();
+        setDurationSave();
 
         setOpen(false);
         e.preventDefault();
@@ -246,18 +267,48 @@ const HomeScreen = () => {
                                 rowsMax={4}
                                 onChange={(e) => onChange(e.target.value, 'descripcion')}
                             />
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                <TimePicker
-                                    style={{ marginTop: '6px' }}
-                                    ampm={false}
-                                    openTo="hours"
-                                    views={["hours", "minutes", "seconds"]}
-                                    format="HH:mm:ss"
-                                    label="Duración"
-                                    value={selectedDate}
-                                    onChange={setDateChange}
-                                />
-                            </MuiPickersUtilsProvider>
+                            <Grid container spacing={3}>
+                                <Grid item xs={6}>
+                                    <FormControlLabel
+                                        control={<Switch checked={establishedDuration} onChange={() => { setEstablishedDuration(!establishedDuration) }} color="primary" />}
+                                        label="¿Duración predeterminada?"
+                                        style={{ marginTop: '10px' }}
+                                    />
+                                </Grid>
+                                <Grid item xs={6} hidden={establishedDuration}>
+                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                        <TimePicker
+                                            style={{ marginTop: '4px' }}
+                                            ampm={false}
+                                            openTo="hours"
+                                            views={["hours", "minutes", "seconds"]}
+                                            format="HH:mm:ss"
+                                            label="Duración"
+                                            value={selectedDate}
+                                            onChange={setDateChange}
+                                            hidden={true}
+                                        />
+                                    </MuiPickersUtilsProvider>
+                                </Grid>
+                                <Grid item xs={6} hidden={!establishedDuration}>
+                                    <FormControl className={classes.formControl} style={{marginTop: '5px'}}>
+                                        <InputLabel id="duration-label">Duración</InputLabel>
+                                        <Select
+                                            labelId="duration-label"
+                                            open={openSelectDuration}
+                                            onClose={() => setOpenSelectDuration(false)}
+                                            onOpen={() => setOpenSelectDuration(true)}
+                                            value={durationEstablished}
+                                            onChange={(e) => {setDurationEstablished(e.target.value as number)}}
+                                        >
+                                            <MenuItem value={0}>Corta: 30 min.</MenuItem>
+                                            <MenuItem value={1}>Media 45 min.</MenuItem>
+                                            <MenuItem value={2}>Larga: 1h.</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+
                         </form>
                     </DialogContent>
                     <DialogActions>
@@ -307,7 +358,7 @@ const HomeScreen = () => {
                             position: 'auto',
                             onClick: () => { onChangeState(0, rowData as Tarea) },
                             hidden: rowData.estado! === 0 || rowData.estado! === 3,
-                            iconProps: { style: {color: '#2655FF'}}
+                            iconProps: { style: { color: '#2655FF' } }
                         }),
                         rowData => ({
                             icon: 'stop',
@@ -321,21 +372,21 @@ const HomeScreen = () => {
                             tooltip: 'Editar tarea',
                             position: 'auto',
                             onClick: (e, rowData) => { handleOpenUpdate(rowData as Tarea) },
-                            iconProps: { style: {color: '#E09643'}}
+                            iconProps: { style: { color: '#E09643' } }
                         },
                         {
                             icon: 'delete_outline',
                             tooltip: 'Eliminar tarea',
                             position: 'row',
                             onClick: (e, rowData) => { onDelete(rowData as Tarea) },
-                            iconProps: { style: {color: 'red'}}
+                            iconProps: { style: { color: 'red' } }
                         },
                         {
                             icon: 'add',
                             tooltip: 'Agregar tarea',
                             isFreeAction: true,
                             onClick: () => { handleClickOpen() },
-                            iconProps: { style: {color: '#17E021'}}
+                            iconProps: { style: { color: '#17E021' } }
                         }
                     ]}
                     onChangePage={async (page, pageNumber) => { await onPage(page + 1, pageNumber) }}
