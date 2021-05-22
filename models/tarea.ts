@@ -47,6 +47,9 @@ const tareaSchema = new Schema({
         type: Number,
         default: Date.now(),
     },
+    iniciado: {
+        type: Number,
+    },
     terminado: {
         type: Number,
     },

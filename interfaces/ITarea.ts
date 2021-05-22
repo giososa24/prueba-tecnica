@@ -12,8 +12,9 @@ export default interface ITarea extends Document {
     tiempoSegundos: number;
     estado: number;
     creado: number;
+    iniciado: number;
     terminado: number;
     activo: boolean;
 }
 
-//Estado 0 por iniciar, 1 en curso, 2 pausado, 3 finalizado
+//Estado 0 en curso, 1 por iniciar, 2 pausado, 3 finalizado

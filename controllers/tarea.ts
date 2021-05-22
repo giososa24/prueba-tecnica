@@ -26,7 +26,7 @@ export const tareaController = {
             let tareasPaginadas: PaginateResult<ITarea>;
 
             if (estado === 3) {
-                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, estado: 3, activo: true }, { '__v': 0 }, { sort: { estado: 1 } }), optionsPaginate);
+                tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, estado: 3, activo: true }, { '__v': 0 }, { sort: { nombre: 1 } }), optionsPaginate);
             } else if (duracion === 1) {
                 tareasPaginadas = await TareaModel.paginate(TareaModel.find({ usuario: idUsuario, minutos: { $gt: 0, $lt: 30 }, horas: { $lte: 0 }, segundos: { $gte: 0 }, activo: true }, { '__v': 0 }, { sort: { estado: 1 } }), optionsPaginate);
             } else if (duracion === 2) {
@@ -137,7 +137,6 @@ export const tareaController = {
 
                 const daysRandom = Math.floor(Math.random() * (8 - 2) + 1);
                 const dateRandomCreated = Date.parse(moment().subtract(daysRandom, 'days').format('llll'));
-                const dateRandomFinished = Date.parse(moment().subtract(daysRandom - 1, 'days').format('llll'));
 
                 const horas = Math.floor(Math.random() * (2 - 0) + 0);
                 let minutos = Math.floor(Math.random() * (60 - 15) + 15);
@@ -172,6 +171,8 @@ export const tareaController = {
                     minutosEnd = Math.floor(totalTimeEnd);
                 }
 
+                const dateRandomFinished = Date.parse(moment(dateRandomCreated).add(totalTimeEnd, 'minutes').format('llll'));
+
                 tareaNueva.usuario = req.params.idUsuario;
                 tareaNueva.nombre = `Tarea ${(i + 1) + tareaIndice.length}`;
                 tareaNueva.descripcion = `Descripción de la tarea ${(i + 1) + tareaIndice.length}`;
@@ -183,6 +184,7 @@ export const tareaController = {
                 tareaNueva.tiempoSegundos = segundosEnd;
                 tareaNueva.estado = 3;
                 tareaNueva.creado = dateRandomCreated;
+                tareaNueva.iniciado = dateRandomCreated;
                 tareaNueva.terminado = dateRandomFinished;
                 tareaNueva.activo = true;
 
@@ -288,10 +290,10 @@ export const tareaController = {
         try {
 
             const body: ITarea = req.body;
+            
+            const tareaFindCurrent = await TareaModel.findOne({ estado: 0, activo: true });            
 
-            const tareaFindCurrent = await TareaModel.findOne({ estado: 1, activo: true });
-
-            if (tareaFindCurrent && body.estado === 1 && tareaFindCurrent._id !== body._id) {
+            if (tareaFindCurrent && body.estado === 0 && tareaFindCurrent._id !== body._id) {
                 return res.status(200).send({
                     status: false,
                     message: 'Ya existe una tarea en curso',
@@ -302,6 +304,14 @@ export const tareaController = {
                 if (tareaFind) {
 
                     tareaFind.estado = body.estado;
+                    tareaFind.iniciado = Date.now();
+
+                    if(body.estado === 3){
+                        tareaFind.tiempoHoras = body.tiempoHoras;
+                        tareaFind.tiempoMinutos = body.tiempoMinutos;
+                        tareaFind.tiempoSegundos = body.tiempoSegundos;
+                        tareaFind.terminado = Date.now();
+                    }
 
                     const tareaUpdated = await TareaModel.findByIdAndUpdate(tareaFind._id, tareaFind);
 
