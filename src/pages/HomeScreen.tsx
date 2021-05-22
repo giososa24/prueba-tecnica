@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles, Fab, Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import BarChartIcon from '@material-ui/icons/BarChart';
 import DateFnsUtils from '@date-io/date-fns';
 import { TimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import MaterialTable from 'material-table';
@@ -220,6 +221,17 @@ const HomeScreen = () => {
             >
                 <AddIcon />
                 50 tareas
+            </Fab>
+            <Fab
+                variant="extended"
+                size="small"
+                color="primary"
+                aria-label="add"
+                style={{ float: 'right', marginRight: '135px', marginTop: '-55px' }}
+                onClick={onSaveRandom}
+            >
+                <BarChartIcon />
+                Historial
             </Fab>
             <hr />
 
