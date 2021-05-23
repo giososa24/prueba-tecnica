@@ -6,15 +6,15 @@ import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useForm } from '../hooks/useForm';
 import { useDispatch } from 'react-redux';
 import { Login } from '../actions/auth';
+import { useStylesLogin } from '../styles/stylesLogin';
 
 const LoginScreen = () => {
 
-    const classes = useStyles();
+    const classes = useStylesLogin();
 
     const initialForm = {
         email: '',
@@ -73,7 +73,7 @@ const LoginScreen = () => {
                         className={classes.submit}
                         onClick={onLogin}
                     >
-                        <Link to='/' >Entrar</Link>
+                        <Link to='/' className={classes.subtitle}>Entrar</Link>
                     </Button>
                     <Grid container>
                         <Grid item xs></Grid>
@@ -90,23 +90,3 @@ const LoginScreen = () => {
 }
 
 export default LoginScreen;
-
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(8),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-        width: '100%',
-        marginTop: theme.spacing(1),
-    },
-    submit: {
-        margin: theme.spacing(3, 0, 2),
-    },
-}));

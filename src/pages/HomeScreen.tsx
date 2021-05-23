@@ -14,6 +14,7 @@ import { columnsTask } from '../types/types';
 import { prepareDataTask } from '../functions/prepareDataTask';
 import { confirmDialg, errorMessage } from '../functions/Swal';
 import moment from 'moment';
+import { useStylesHome } from '../styles/stylesHome';
 
 const HomeScreen = () => {
 
@@ -52,7 +53,7 @@ const HomeScreen = () => {
     const [tasksByWeek, setTasksByWeek] = useState<any>(null);
     const { getByUser, create, createRandom, update, changeState, Delete, filterByWeek } = useTask();
 
-    const classes = useStyles();
+    const classes = useStylesHome();
 
     useEffect(() => {
         const { page, pageNumber, estado, duracion } = filters;
@@ -489,13 +490,3 @@ const HomeScreen = () => {
 }
 
 export default HomeScreen;
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        formControl: {
-            margin: theme.spacing(1),
-            minWidth: 120,
-            marginTop: -8
-        },
-    }),
-);

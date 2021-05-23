@@ -6,16 +6,16 @@ import { Link } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useDispatch } from 'react-redux';
 import { useForm } from '../hooks/useForm';
 import { Register } from '../actions/auth';
 import { Usuario } from '../interfaces/usuario';
+import { useStylesRegister } from '../styles/stylesRegister';
 
 const RegisterScreen = () => {
 
-    const classes = useStyles();
+    const classes = useStylesRegister();
 
     const initialForm: Usuario = {
         _id: '',
@@ -119,7 +119,7 @@ const RegisterScreen = () => {
                         onClick={onRegister}
                     >
                         Registrarse
-          </Button>
+                    </Button>
                     <Grid container justify="flex-end">
                         <Grid item>
                             <Link to="/login">
@@ -134,23 +134,3 @@ const RegisterScreen = () => {
 }
 
 export default RegisterScreen;
-
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(8),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-        width: '100%', // Fix IE 11 issue.
-        marginTop: theme.spacing(3),
-    },
-    submit: {
-        margin: theme.spacing(3, 0, 2),
-    },
-}));

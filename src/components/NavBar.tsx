@@ -8,23 +8,13 @@ import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Logout } from '../actions/auth';
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            flexGrow: 1,
-        },
-        title: {
-            flexGrow: 1,
-        },
-    }),
-);
+import { useStylesNabvar } from '../styles/stylesNavbar';
 
 const NavBar = () => {
 
     const auth = useSelector((state: any) => state);
     const status = auth.auth.status;
-    const classes = useStyles();
+    const classes = useStylesNabvar();
     const dispatch = useDispatch();
 
     const onLogout = (e: any) => {
@@ -36,10 +26,10 @@ const NavBar = () => {
             <AppBar position="static">
                 <Toolbar>
                     {status === 'authenticated' && <Typography variant="h6" className={classes.title}>
-                        <Link to='/' >Home</Link>
+                        <Link to='/' className={classes.subtitle}>Home</Link>
                     </Typography>}
-                    {status === 'not-authenticated' && <Button color="inherit"><Link to='/login' >Login</Link></Button>}
-                    {status === 'authenticated' && <IconButton color="secondary" onClick={onLogout}><Link to='/login' > <ExitToAppOutlinedIcon /></Link></IconButton>}
+                    {status === 'not-authenticated' && <Button color="inherit"><Link to='/login' className={classes.subtitle}>Login</Link></Button>}
+                    {status === 'authenticated' && <IconButton color="default" onClick={onLogout}><Link to='/login' className={classes.subtitle}> <ExitToAppOutlinedIcon /></Link></IconButton>}
                 </Toolbar>
             </AppBar>
         </div>
