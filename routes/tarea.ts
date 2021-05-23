@@ -16,6 +16,6 @@ tareaRoutes.delete('/delete/:id', [ensureAuth], tareaController.delete);
 
 tareaRoutes.put('/change-state', [ensureAuth], tareaController.changeState);
 
-tareaRoutes.get('/filter-by-week', [ensureAuth], tareaController.filterByWeek);
+tareaRoutes.get('/filter-by-week/:usuario/:fechaInicial/:fechaFinal', [ensureAuth], tareaController.filterByWeek);
 
 export default tareaRoutes;

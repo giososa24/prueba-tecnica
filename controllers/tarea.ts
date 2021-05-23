@@ -129,7 +129,7 @@ export const tareaController = {
         try {
 
             const idUsuario = req.params.idUsuario;
-            let tareaIndice = await TareaModel.find({ usuario: idUsuario });          
+            let tareaIndice = await TareaModel.find({ usuario: idUsuario });
 
             for (let i = 0; i < 50; i++) {
 
@@ -188,7 +188,7 @@ export const tareaController = {
                 tareaNueva.terminado = dateRandomFinished;
                 tareaNueva.activo = true;
 
-                await tareaNueva.save();  
+                await tareaNueva.save();
             }
 
             return res.status(202).send({
@@ -290,8 +290,8 @@ export const tareaController = {
         try {
 
             const body: ITarea = req.body;
-            
-            const tareaFindCurrent = await TareaModel.findOne({ estado: 0, activo: true });            
+
+            const tareaFindCurrent = await TareaModel.findOne({ estado: 0, activo: true });
 
             if (tareaFindCurrent && body.estado === 0 && tareaFindCurrent._id !== body._id) {
                 return res.status(200).send({
@@ -306,7 +306,7 @@ export const tareaController = {
                     tareaFind.estado = body.estado;
                     tareaFind.iniciado = Date.now();
 
-                    if(body.estado === 3){
+                    if (body.estado === 3) {
                         tareaFind.tiempoHoras = body.tiempoHoras;
                         tareaFind.tiempoMinutos = body.tiempoMinutos;
                         tareaFind.tiempoSegundos = body.tiempoSegundos;
@@ -350,35 +350,38 @@ export const tareaController = {
             const fechaFinal = Number(req.params.fechaFinal);
             const idUsuario = req.params.usuario;
 
-            const tareasFind = await TareaModel.find({ _id: idUsuario, activo: true });
+            console.log(moment(fechaInicial).format('L'));
+            console.log(moment(fechaFinal).format('L'));
 
-            if (tareasFind.length > 0) {
+            var numeroDias = moment(fechaFinal).diff(fechaInicial, 'days');
+            let tareas = {};
+            let resp = [];
 
-                let tareas: ITarea[] = [];
-
-                tareasFind.forEach(tarea => {
-                    if (Date.parse(moment(tarea.terminado).format("YYYY-MM-DD")) >= fechaInicial && Date.parse(moment(tarea.terminado).format("YYYY-MM-DD")) <= fechaFinal) {
-                        tareas.push(tarea);
-                    }
-                });
-
-                if (tareas) {
-                    return res.status(202).send({
-                        status: true,
-                        tareas,
-                    });
-                } else {
-                    return res.status(200).send({
-                        status: false,
-                        message: 'No hay tareas registradas en el rango de fechas',
-                        tareas,
-                    });
+            for (let i = 0; i < numeroDias + 1; i++) {
+                let fechaI = Date.parse(moment(fechaInicial).add(i, 'days').format('L')); 
+                let fechaF = Date.parse(moment(fechaInicial).add(i + 1, 'days').format('L'));
+                const fechaNombre = moment(fechaI).locale('es-mx').format('DD MMMM');                
+                const tareasFind = await TareaModel.find({ usuario: idUsuario, activo: true, estado: 3, terminado: { $gte: fechaI, $lt: fechaF } }, { _id: '1' });
+                const total = tareasFind.length;
+                
+                tareas = {
+                    dia: fechaNombre,
+                    tareas: total,
                 }
 
+                resp.push(tareas);
+            }
+
+            if (resp) {
+                return res.status(202).send({
+                    status: true,
+                    resp,
+                });
             } else {
                 return res.status(200).send({
                     status: false,
-                    message: 'No hay tareas registradas'
+                    message: 'No hay tareas registradas en el rango de fechas',
+                    tareas,
                 });
             }
 
