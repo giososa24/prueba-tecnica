@@ -6,3 +6,8 @@ export interface Response<T> {
     status: boolean,
     pagination?: Pagination
 }
+
+export interface ResponseWeek {
+    dia: string,
+    tareas: number,
+}

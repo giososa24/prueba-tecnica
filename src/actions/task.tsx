@@ -1,5 +1,5 @@
 import tareaApi from '../api/tareaApi';
-import { Response } from '../interfaces/response';
+import { Response, ResponseWeek } from '../interfaces/response';
 import Tarea from '../interfaces/tarea';
 
 
@@ -31,5 +31,10 @@ export const changeStateTask = (tarea: Tarea) => {
 export const deleteTask = (idTarea: string) => {
 
     return tareaApi.delete<Response<Tarea>>(`/tarea/delete/${idTarea}`);
+}
+
+export const filterByWeekTask = (usuario: string, fechaInicial: number, fechaFinal: number) => {
+
+    return tareaApi.get<Response<Tarea> | ResponseWeek>(`/tarea/filter-by-week/${usuario}/${fechaInicial}/${fechaFinal}`);
 }
 

@@ -4,13 +4,16 @@ import AddIcon from '@material-ui/icons/Add';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import DateFnsUtils from '@date-io/date-fns';
 import { TimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import { KeyboardDatePicker } from "@material-ui/pickers";
+import { VictoryPie, VictoryTheme } from 'victory';
 import MaterialTable from 'material-table';
 import { useForm } from '../hooks/useForm';
 import { useTask } from '../hooks/useTask';
 import Tarea from '../interfaces/tarea';
 import { columnsTask } from '../types/types';
 import { prepareDataTask } from '../functions/prepareDataTask';
-import { confirmDialg } from '../functions/Swal';
+import { confirmDialg, errorMessage } from '../functions/Swal';
+import moment from 'moment';
 
 const HomeScreen = () => {
 
@@ -37,13 +40,17 @@ const HomeScreen = () => {
     const [duration, setDuration] = useState<string | number>('');
     const [durationEstablished, setDurationEstablished] = useState(0);
     const [selectedDate, setDateChange] = useState(new Date());
+    const [selectDateStart, setSelectDateStart] = useState(new Date());
+    const [selectDateEnd, setSelectDateEnd] = useState(new Date());
     const [filters, setFilters] = useState(initialFilters);
     const [handleUpdate, setHandleUpdate] = useState(false);
     const [open, setOpen] = useState(false);
+    const [openChart, setOpenChart] = useState(false)
     const [loading, setLoading] = useState(false);
     const [tareas, setTareas] = useState<Tarea[]>([]);
     const { form, onChange } = useForm(initialForm);
-    const { getByUser, create, createRandom, update, changeState, Delete } = useTask();
+    const [tasksByWeek, setTasksByWeek] = useState<any>(null);
+    const { getByUser, create, createRandom, update, changeState, Delete, filterByWeek } = useTask();
 
     const classes = useStyles();
 
@@ -143,6 +150,19 @@ const HomeScreen = () => {
         }
     }
 
+    const onFilterTask = async () => {
+        const fechaInicial = Date.parse(moment(selectDateStart).format());
+        const fechaFinal = Date.parse(moment(selectDateEnd).format());
+        if (fechaInicial > fechaFinal) {
+            errorMessage('La fecha inicial no puede ser mayor a la final');
+        } else if (fechaInicial === fechaFinal) {
+            errorMessage('La fechas no pueden ser iguales')
+        } else {
+            const tasksByWeek = await filterByWeek(fechaInicial, fechaFinal);
+            setTasksByWeek(tasksByWeek);
+        }
+    }
+
     const setDurationSave = () => {
         if (!establishedDuration) {
             form.horas = selectedDate.getHours();
@@ -210,31 +230,35 @@ const HomeScreen = () => {
 
     return (
         <div style={{ padding: '3em' }}>
-            <h1>Mis tareas</h1>
-            <Fab
-                variant="extended"
-                size="small"
-                color="primary"
-                aria-label="add"
-                style={{ float: 'right', marginTop: '-55px' }}
-                onClick={onSaveRandom}
-            >
-                <AddIcon />
-                50 tareas
-            </Fab>
-            <Fab
-                variant="extended"
-                size="small"
-                color="primary"
-                aria-label="add"
-                style={{ float: 'right', marginRight: '135px', marginTop: '-55px' }}
-                onClick={onSaveRandom}
-            >
-                <BarChartIcon />
-                Historial
-            </Fab>
-            <hr />
+            <Grid container spacing={3} justify="flex-end">
+                <Grid item xs={4}>
+                    <h1>Mis tareas</h1>
+                </Grid>
+                <Grid item xs={4}>
+                    <Fab
+                        variant="extended"
+                        size="small"
+                        color="primary"
+                        style={{ float: 'right' }}
+                        onClick={() => setOpenChart(true)}
+                    >
+                        <BarChartIcon /> Historial
+                    </Fab>
+                </Grid>
+                <Grid item xs={4}>
+                    <Fab
+                        variant="extended"
+                        size="small"
+                        color="primary"
+                        style={{ float: 'right' }}
+                        onClick={onSaveRandom}
+                    >
+                        <AddIcon /> 50 tareas
+                    </Fab>
+                </Grid>
+            </Grid>
 
+            <hr />
             <FormControlLabel
                 control={<Switch checked={completeTasks} onChange={handleChangeSwitch} color="primary" />}
                 label="Tareas completadas"
@@ -255,6 +279,62 @@ const HomeScreen = () => {
                     <MenuItem value={3}>mayor a 1h</MenuItem>
                 </Select>
             </FormControl>
+            <div>
+                <Dialog open={openChart} fullWidth onClose={() => setOpenChart(false)} aria-labelledby="form-dialog-title">
+                    <DialogTitle id="form-dialog-title">Historial</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={3}>
+                            <Grid item xs={4}>
+                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                    <KeyboardDatePicker
+                                        label="Fecha inicial"
+                                        value={selectDateStart}
+                                        onChange={date => setSelectDateStart(date)}
+                                        format="dd/MM/yyyy"
+                                    />
+                                </MuiPickersUtilsProvider>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                    <KeyboardDatePicker
+                                        label="Fecha final"
+                                        value={selectDateEnd}
+                                        onChange={date => setSelectDateEnd(date)}
+                                        format="dd/MM/yyyy"
+                                    />
+                                </MuiPickersUtilsProvider>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Fab
+                                    variant="extended"
+                                    size="small"
+                                    color="primary"
+                                    style={{ marginTop: '12px' }}
+                                    onClick={onFilterTask}
+                                >
+                                    <AddIcon /> Filtrar
+                                </Fab>
+                            </Grid>
+                            {tasksByWeek && <Grid item xs={12}>
+                                <div style={{ width: '500px', height: '400px' }}>
+                                    <VictoryPie
+                                        data={tasksByWeek.resp}
+                                        animate={{ duration: 2000 }}
+                                        colorScale={["tomato", "orange", "gold", "cyan", "navy"]}
+                                        theme={VictoryTheme.material}
+                                        labels={({ datum }) => `${datum.x}: ${datum.y}`}
+                                    />
+                                </div>
+                            </Grid>}
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenChart(false)} color="primary">
+                            Cerrar
+                         </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
             <div>
                 <Dialog open={open} fullWidth onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
                     <DialogTitle id="form-dialog-title">{handleUpdate ? 'Actualizar tarea' : 'Crear nueva tarea'}</DialogTitle>
@@ -303,7 +383,7 @@ const HomeScreen = () => {
                                     </MuiPickersUtilsProvider>
                                 </Grid>
                                 <Grid item xs={6} hidden={!establishedDuration}>
-                                    <FormControl className={classes.formControl} style={{marginTop: '5px'}}>
+                                    <FormControl className={classes.formControl} style={{ marginTop: '5px' }}>
                                         <InputLabel id="duration-label">Duración</InputLabel>
                                         <Select
                                             labelId="duration-label"
@@ -311,7 +391,7 @@ const HomeScreen = () => {
                                             onClose={() => setOpenSelectDuration(false)}
                                             onOpen={() => setOpenSelectDuration(true)}
                                             value={durationEstablished}
-                                            onChange={(e) => {setDurationEstablished(e.target.value as number)}}
+                                            onChange={(e) => { setDurationEstablished(e.target.value as number) }}
                                         >
                                             <MenuItem value={0}>Corta: 30 min.</MenuItem>
                                             <MenuItem value={1}>Media 45 min.</MenuItem>

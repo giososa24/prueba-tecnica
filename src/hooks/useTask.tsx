@@ -1,4 +1,4 @@
-import { createTask, getByUserTask, updateTask, deleteTask, createTaskRandom, changeStateTask } from '../actions/task';
+import { createTask, getByUserTask, updateTask, deleteTask, createTaskRandom, changeStateTask, filterByWeekTask } from '../actions/task';
 import { errorMessage, successMessage } from "../functions/Swal";
 import Tarea from "../interfaces/tarea";
 import { Usuario } from "../interfaces/usuario";
@@ -111,6 +111,19 @@ export const useTask = () => {
         }
     }
 
+    const filterByWeek = async (fechaInicial: number, fechaFinal: number) => {
+
+        try {
+
+            const resp = await filterByWeekTask(usuario._id, fechaInicial, fechaFinal);
+
+            return resp.data;
+
+        } catch (error) {
+            errorMessage('Ha surgido un error, favor contacte al administrador');
+        }
+    }
+
     const validarTiempo = (tarea: Tarea) => {
         const { horas, minutos, segundos } = tarea;
 
@@ -129,5 +142,6 @@ export const useTask = () => {
         update,
         changeState,
         Delete,
+        filterByWeek,
     }
 }
