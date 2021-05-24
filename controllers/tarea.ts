@@ -291,9 +291,9 @@ export const tareaController = {
 
             const body: ITarea = req.body;
 
-            const tareaFindCurrent = await TareaModel.findOne({ estado: 0, activo: true });
+            const tareaFindCurrent = await TareaModel.findOne({ usuario: body.usuario, estado: 0, activo: true });            
 
-            if (tareaFindCurrent && body.estado === 0 && tareaFindCurrent._id !== body._id) {
+            if (tareaFindCurrent && body.estado === 0 && tareaFindCurrent._id !== body._id ) {
                 return res.status(200).send({
                     status: false,
                     message: 'Ya existe una tarea en curso',
