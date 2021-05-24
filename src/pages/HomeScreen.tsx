@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, makeStyles, Theme, createStyles, Fab, Grid } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Switch, FormControlLabel, Select, MenuItem, FormControl, InputLabel, Fab, Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import DateFnsUtils from '@date-io/date-fns';
@@ -12,9 +12,10 @@ import { useTask } from '../hooks/useTask';
 import Tarea from '../interfaces/tarea';
 import { columnsTask } from '../types/types';
 import { prepareDataTask } from '../functions/prepareDataTask';
-import { confirmDialg, errorMessage } from '../functions/Swal';
+import { confirmDialg, errorMessage, successMessage } from '../functions/Swal';
 import moment from 'moment';
 import { useStylesHome } from '../styles/stylesHome';
+import Timer from '../components/Timer';
 
 const HomeScreen = () => {
 
@@ -43,6 +44,7 @@ const HomeScreen = () => {
     const [selectedDate, setDateChange] = useState(new Date());
     const [selectDateStart, setSelectDateStart] = useState(new Date());
     const [selectDateEnd, setSelectDateEnd] = useState(new Date());
+    const [currentTask, setCurrentTask] = useState({});
     const [filters, setFilters] = useState(initialFilters);
     const [handleUpdate, setHandleUpdate] = useState(false);
     const [open, setOpen] = useState(false);
@@ -52,6 +54,8 @@ const HomeScreen = () => {
     const { form, onChange } = useForm(initialForm);
     const [tasksByWeek, setTasksByWeek] = useState<any>(null);
     const { getByUser, create, createRandom, update, changeState, Delete, filterByWeek } = useTask();
+    const [finishTask, setFinishTask] = useState(false);
+    const [pauseTimer, setPauseTimer] = useState(true);
 
     const classes = useStylesHome();
 
@@ -65,6 +69,12 @@ const HomeScreen = () => {
         const resp = await getByUser(page, limit, estado, duracion);
         if (resp && resp.data) {
             setTareas(prepareDataTask(resp.data));
+            const taskCurrent = resp.data.filter(x => x.estado === 0);
+
+            if (taskCurrent.length > 0) {
+                setCurrentTask(taskCurrent[0]);
+            }
+
             if (resp.pagination) {
                 setFilters({
                     page: resp.pagination?.page,
@@ -79,6 +89,11 @@ const HomeScreen = () => {
             setFilters({ ...initialFilters, pageNumber: limit, estado, duracion });
         }
         setLoading(false);
+    }
+
+    const refreshData = () => {
+        const { page, pageNumber, estado, duracion } = filters;
+        loadData(page, pageNumber, estado, duracion);
     }
 
     const handleChangeSwitch = () => {
@@ -195,6 +210,16 @@ const HomeScreen = () => {
         await loadData(page, pageNumber, estado, duracion);
     }
 
+    const onFinishTask = () => {
+        const title = '¡Estás seguro de finalizar esta tarea!';
+        const confirmTitle = 'Sí, finalizar';
+        confirmDialg(title, confirmTitle).then((result) => {
+            if (result) {
+                setFinishTask(true);
+            }
+        });
+    }
+
     const onChangeState = async (state: number, tarea: Tarea) => {
         const { page, pageNumber, estado, duracion } = filters;
         let title: string = '';
@@ -204,16 +229,18 @@ const HomeScreen = () => {
             title = '¡Estás seguro de iniciar esta tarea!';
             confirmTitle = 'Sí, iniciar';
             tarea.estado = 0;
+            setFinishTask(false);
         }
 
-        if (state === 3) {
-            title = '¡Estás seguro de finalizar esta tarea!';
-            confirmTitle = 'Sí, finalizar';
-            tarea.estado = 3;
-            //Igualar los valores a los del contador
-        }
+        // if (state === 3) {
+        //     title = '¡Estás seguro de finalizar esta tarea!';
+        //     confirmTitle = 'Sí, finalizar';
+        //     tarea.estado = 3;
+        //     //setCurrentTask(tarea);
+        // }
 
         if (await confirmDialg(title, confirmTitle)) {
+            setCurrentTask(tarea);
             await changeState(tarea);
             await loadData(page, pageNumber, estado, duracion);
         }
@@ -229,8 +256,25 @@ const HomeScreen = () => {
         }
     }
 
+    const onPause = () => {
+        setPauseTimer(!pauseTimer);
+        if (pauseTimer) {
+            successMessage('Tarea pausada');
+        }
+        if (!pauseTimer) {
+            successMessage('Tarea reanudada');
+        }
+    }
+
     return (
         <div style={{ padding: '3em' }}>
+            <div style={{ float: 'left', position: 'fixed', zIndex: 1000, left: '73.5%', top: '77px' }}>
+                <Timer currentTask={currentTask as Tarea}
+                    loadData={refreshData}
+                    finishTask={finishTask}
+                    pause={pauseTimer}
+                />
+            </div>
             <Grid container spacing={3} justify="flex-end">
                 <Grid item xs={4}>
                     <h1>Mis tareas</h1>
@@ -457,8 +501,16 @@ const HomeScreen = () => {
                             icon: 'stop',
                             tooltip: 'Finalizar tarea',
                             position: 'auto',
-                            onClick: () => { onChangeState(3, rowData as Tarea) },
+                            onClick: () => onFinishTask(),
                             hidden: rowData.estado! !== 0,
+                        }),
+                        rowData => ({
+                            icon: 'pause_circle',
+                            tooltip: 'Pausar tarea',
+                            position: 'auto',
+                            onClick: () => onPause(),
+                            hidden: rowData.estado! !== 0,
+                            iconProps: { style: { color: '#3870E0' } }
                         }),
                         {
                             icon: 'edit',

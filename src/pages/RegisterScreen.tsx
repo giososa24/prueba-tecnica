@@ -12,6 +12,7 @@ import { useForm } from '../hooks/useForm';
 import { Register } from '../actions/auth';
 import { Usuario } from '../interfaces/usuario';
 import { useStylesRegister } from '../styles/stylesRegister';
+import { successMessage } from '../functions/Swal';
 
 const RegisterScreen = () => {
 
@@ -33,6 +34,7 @@ const RegisterScreen = () => {
     const onRegister = (e: any) => {
         e.preventDefault();
         dispatch(Register(form));
+        successMessage('Registro correcto...');
     }
 
     return (
