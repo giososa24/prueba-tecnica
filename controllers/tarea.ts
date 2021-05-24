@@ -348,25 +348,37 @@ export const tareaController = {
 
             const fechaInicial = Number(req.params.fechaInicial);
             const fechaFinal = Number(req.params.fechaFinal);
-            const idUsuario = req.params.usuario;
 
-            console.log(moment(fechaInicial).format('L'));
-            console.log(moment(fechaFinal).format('L'));
+            if (fechaInicial > fechaFinal) {
+                return res.status(200).send({
+                    status: false,
+                    message: 'La fecha inicial debe ser mayor a la fecha final',
+                });
+            }
+
+            if( fechaInicial === fechaFinal) {
+                return res.status(200).send({
+                    status: false,
+                    message: 'Las fechas no pueden ser iguales',
+                });
+            }
+
+            const idUsuario = req.params.usuario;
 
             var numeroDias = moment(fechaFinal).diff(fechaInicial, 'days');
             let tareas = {};
             let resp = [];
 
             for (let i = 0; i < numeroDias + 1; i++) {
-                let fechaI = Date.parse(moment(fechaInicial).add(i, 'days').format('L')); 
+                let fechaI = Date.parse(moment(fechaInicial).add(i, 'days').format('L'));
                 let fechaF = Date.parse(moment(fechaInicial).add(i + 1, 'days').format('L'));
-                const fechaNombre = moment(fechaI).locale('es-mx').format('DD MMMM');                
+                const fechaNombre = moment(fechaI).locale('es-mx').format('DD MMMM');
                 const tareasFind = await TareaModel.find({ usuario: idUsuario, activo: true, estado: 3, terminado: { $gte: fechaI, $lt: fechaF } }, { _id: '1' });
                 const total = tareasFind.length;
-                
+
                 tareas = {
-                    dia: fechaNombre,
-                    tareas: total,
+                    x: fechaNombre,
+                    y: total,
                 }
 
                 resp.push(tareas);
@@ -374,7 +386,6 @@ export const tareaController = {
 
             if (resp) {
                 return res.status(202).send({
-                    status: true,
                     resp,
                 });
             } else {
