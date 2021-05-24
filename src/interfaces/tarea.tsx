@@ -1,5 +1,5 @@
 
-
+//Interfaz con las propiedades que tiene una tarea
 export default interface Tarea {
     _id?: string;
     usuario?: string;

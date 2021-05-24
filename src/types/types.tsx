@@ -8,6 +8,7 @@ export interface AuthState {
     user: Usuario | null;
 }
 
+//Ttipos de acciones para manejar el estado del login
 export type AuthAction =
     | { type: 'signIn', payload: Usuario, token: string }
     | { type: 'checkAuth', status: string, token: string, payload: Usuario }
@@ -16,6 +17,7 @@ export type AuthAction =
     | { type: 'logout' }
 
 
+    //Se crea las columans de la tabla de tareas
 export const columnsTask: Column<Tarea>[] = [
     { field: 'nombre', title: 'Nombre', width: 250, filtering: true, sorting: true },
     { field: 'descripcion', title: 'Descripción', width: 300, sorting: true },

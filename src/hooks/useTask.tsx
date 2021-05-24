@@ -3,6 +3,8 @@ import { errorMessage, successMessage } from "../functions/Swal";
 import Tarea from "../interfaces/tarea";
 import { Usuario } from "../interfaces/usuario";
 
+//Este hook fué creado para realizar todas las acciones que involucren a las tareas, como el CRUD por ejemplo
+
 export const useTask = () => {
 
     const payload = localStorage.getItem('usuario');

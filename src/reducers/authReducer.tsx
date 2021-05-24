@@ -6,6 +6,8 @@ const initialState: AuthState = {
     user: null,
 }
 
+//Aqui se agrega el reducer para cambiar el estado global de la autenticacion del usuario
+
 export const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
     switch (action.type) {

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+//Este hook sirve para manipular cualquier formulario ya que recibe un estado de tipo generico
+
 export const useForm = <T extends Object>( initState: T ) => {
     
     const [state, setState] = useState( initState );

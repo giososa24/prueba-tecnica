@@ -2,6 +2,7 @@ import tareaApi from '../api/tareaApi';
 import { Usuario } from '../interfaces/usuario';
 import { AuthAction } from '../types/types';
 
+//Funcion que hace el dispatch de login de usuario
 export const Login = (email: string, password: string) => {
 
     return async (dispatch: (action: AuthAction) => void) => {
@@ -29,6 +30,7 @@ const login = (user: Usuario, token: string): AuthAction => ({
     token,
 });
 
+//Funcion que hace el dispatch para que el usuario se desautentique de la aplicacion
 export const Logout = () => {
 
     return async (dispatch: (action: AuthAction) => void) => {
@@ -38,6 +40,7 @@ export const Logout = () => {
     }
 }
 
+//Funcion que sirve para verificar el estado global del login en la aplicacion
 export const CheckAuth = () => {
 
     return async (dispatch: (action: AuthAction) => void) => {
@@ -65,6 +68,8 @@ const checkAuth = (status: string, token: string, payload: Usuario): AuthAction 
     payload,
 });
 
+
+//Funcion que hace el dispatch para registar a un nuevo usuario
 export const Register = (form: Usuario) => {
 
     return async (dispatch: (action: AuthAction) => void) => {

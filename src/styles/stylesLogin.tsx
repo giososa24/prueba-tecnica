@@ -1,5 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 
+//Estilos utilizados para la pagina del login
 export const useStylesLogin = makeStyles((theme) => ({
     paper: {
         marginTop: theme.spacing(8),

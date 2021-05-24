@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Logout } from '../actions/auth';
 import { useStylesNabvar } from '../styles/stylesNavbar';
 
+//Componente para renderizar un menu superior
 const NavBar = () => {
 
     const auth = useSelector((state: any) => state);

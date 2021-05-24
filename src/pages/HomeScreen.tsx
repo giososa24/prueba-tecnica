@@ -17,6 +17,9 @@ import moment from 'moment';
 import { useStylesHome } from '../styles/stylesHome';
 import Timer from '../components/Timer';
 
+//Dentro de esta pagina se renderizan todos los componentes a mostrar con los cuales el usuario interactua
+//Como es la grafica, la tabla de datos, y el temporizador
+
 const HomeScreen = () => {
 
     const initialFilters = {
@@ -35,6 +38,7 @@ const HomeScreen = () => {
         segundos: 0,
     }
 
+    //Aqui se utilizan todos lo hooks necesarios para que la aplicacion funcione, 
     const [completeTasks, setCompleteTasks] = useState(false);
     const [establishedDuration, setEstablishedDuration] = useState(false);
     const [openSelect, setOpenSelect] = useState(false);
@@ -59,11 +63,13 @@ const HomeScreen = () => {
 
     const classes = useStylesHome();
 
+    //Este hook sirve para cargar la informacion cuando se inicia el componente
     useEffect(() => {
         const { page, pageNumber, estado, duracion } = filters;
         loadData(page, pageNumber, estado, duracion);
     }, []);
 
+    //Esta funcion sirve para cargar la informacion de tareas
     const loadData = async (page: number, limit: number, estado: number, duracion: number) => {
         setLoading(true);
         const resp = await getByUser(page, limit, estado, duracion);
@@ -96,6 +102,7 @@ const HomeScreen = () => {
         loadData(page, pageNumber, estado, duracion);
     }
 
+    //Esta funcion se utiliza para obtener las tareas finalizadas
     const handleChangeSwitch = () => {
         setCompleteTasks(!completeTasks);
         const { pageNumber, duracion } = filters;
@@ -106,6 +113,7 @@ const HomeScreen = () => {
         }
     };
 
+    //Esta funcion sirve para abrir el modal y agregar una tarea nueva
     const handleClickOpen = () => {
         form.nombre = '';
         form.descripcion = '';
@@ -118,6 +126,7 @@ const HomeScreen = () => {
         handleChangeDate();
     };
 
+    //Con esta funcion se abre el modal y se le pasa la informacion de la tarea a actualizar
     const handleOpenUpdate = (rowData: Tarea) => {
         setOpen(true);
         setHandleUpdate(true);
@@ -135,6 +144,7 @@ const HomeScreen = () => {
         setDateChange(new Date(`2021/05/20 ${duration}`));
     }
 
+    //Con esta funcion se cambia el filtro para obtener tareas por su duracion
     const handleChangeSelect = (event: React.ChangeEvent<{ value: unknown }>) => {
         const duration = event.target.value as number;
         setDuration(duration);
@@ -142,11 +152,13 @@ const HomeScreen = () => {
         loadData(1, pageNumber, estado, duration);
     };
 
+    //Esta funcion sirve para cambiar de pagina
     const onPage = async (page: number, pageNumber: number) => {
         const { estado, duracion } = filters;
         loadData(page, pageNumber, estado, duracion);
     }
 
+    //Con esta funcion se guarda una nueva tarea
     const onSave = async (e: any) => {
         const { page, pageNumber, estado, duracion } = filters;
         setDurationSave();
@@ -157,6 +169,7 @@ const HomeScreen = () => {
         await loadData(page, pageNumber, estado, duracion);
     }
 
+    //Con esta funcion se guardan 50 tareas aleatorias
     const onSaveRandom = async () => {
         const { page, pageNumber, estado, duracion } = filters;
 
@@ -166,6 +179,7 @@ const HomeScreen = () => {
         }
     }
 
+    //Con esta funcion se filtran las tareas por fecha y se muestra una grafica de pastel con la produccion por dia
     const onFilterTask = async () => {
         const fechaInicial = Date.parse(moment(selectDateStart).format());
         const fechaFinal = Date.parse(moment(selectDateEnd).format());
@@ -179,6 +193,7 @@ const HomeScreen = () => {
         }
     }
 
+    ////Con esta funcion se establece la duracion dependiendo si es larga, media o corta
     const setDurationSave = () => {
         if (!establishedDuration) {
             form.horas = selectedDate.getHours();
@@ -200,6 +215,7 @@ const HomeScreen = () => {
         }
     }
 
+    //Esta funcion llama la accion para actualizar la tarea
     const onUpdate = async (e: any) => {
         const { page, pageNumber, estado, duracion } = filters;
         setDurationSave();
@@ -210,6 +226,7 @@ const HomeScreen = () => {
         await loadData(page, pageNumber, estado, duracion);
     }
 
+    //Con esta funcion se finaliza una tarea
     const onFinishTask = () => {
         const title = '¡Estás seguro de finalizar esta tarea!';
         const confirmTitle = 'Sí, finalizar';
@@ -220,6 +237,7 @@ const HomeScreen = () => {
         });
     }
 
+    //Con esta funcion se cambia el estado de una tarea
     const onChangeState = async (state: number, tarea: Tarea) => {
         const { page, pageNumber, estado, duracion } = filters;
         let title: string = '';
@@ -232,13 +250,6 @@ const HomeScreen = () => {
             setFinishTask(false);
         }
 
-        // if (state === 3) {
-        //     title = '¡Estás seguro de finalizar esta tarea!';
-        //     confirmTitle = 'Sí, finalizar';
-        //     tarea.estado = 3;
-        //     //setCurrentTask(tarea);
-        // }
-
         if (await confirmDialg(title, confirmTitle)) {
             setCurrentTask(tarea);
             await changeState(tarea);
@@ -247,6 +258,7 @@ const HomeScreen = () => {
 
     }
 
+    //Con esta funcion se elimina una tarea
     const onDelete = async (rowData: Tarea) => {
         const { page, pageNumber, estado, duracion } = filters;
 
@@ -256,6 +268,7 @@ const HomeScreen = () => {
         }
     }
 
+    //Con esta funcion se pausa el temporizador
     const onPause = () => {
         setPauseTimer(!pauseTimer);
         if (pauseTimer) {

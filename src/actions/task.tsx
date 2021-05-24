@@ -3,6 +3,8 @@ import { Response, ResponseWeek } from '../interfaces/response';
 import Tarea from '../interfaces/tarea';
 
 
+//Este archivo contiene las acciones necesarias para interactuar con el servicio de tareas, como el CRUD y cambiar el estado o filtrado de las mismas
+
 export const getByUserTask = (idUsuario: string, page: number, limit: number, estado: number, duracion: number) => {
     
     return tareaApi.get<Response<Tarea>>(`/tarea/get-by-user/${idUsuario}/${page}/${limit}/${estado}/${duracion}`);

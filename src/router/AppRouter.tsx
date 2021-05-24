@@ -18,6 +18,7 @@ const AppRouter = () => {
 
     const dispatch = useDispatch();
 
+    //Se verifica la autenticacion para mostrar las urls dependiendo de su estado
     useEffect(() => {
         dispatch(CheckAuth());
     }, [dispatch]);

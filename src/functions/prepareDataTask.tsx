@@ -3,6 +3,8 @@ import Tarea from "../interfaces/tarea";
 import { tiempo } from './formatoTiempo';
 import 'moment/locale/es-mx';
 
+//Esta funcion sirve para mostar en la tabla el estado de las tareas en una forma que el usuario las pueda identificar
+//Por ejemplo estado 1 equivale a "Por iniciar"
 
 export const prepareDataTask = (tareas: Tarea[]) => {
     tareas.forEach((item) => {

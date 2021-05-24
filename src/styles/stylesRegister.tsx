@@ -1,5 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 
+//Estilos utilizados en la pagina de registro
 export const useStylesRegister = makeStyles((theme) => ({
     paper: {
         marginTop: theme.spacing(8),

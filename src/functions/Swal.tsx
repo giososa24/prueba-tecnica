@@ -1,5 +1,7 @@
 import Swal from 'sweetalert2';
 
+//En este archivo se configura Swal para poder mostrar notificaciones al usuario cada vez que se realize alguna accion
+
 export const successMessage = (title: string) => {
     Swal.fire({
         position: 'top-end',

@@ -1,3 +1,6 @@
+
+//Interfaz para obtener una respuesta con los parametros de la paginacion que llegan del backend
+
 export class Pagination {
     public hasNextPage: boolean;
     public hasPrevPage: boolean;

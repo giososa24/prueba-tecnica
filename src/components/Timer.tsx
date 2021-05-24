@@ -11,27 +11,14 @@ interface Props {
     pause: boolean;
 }
 
+//Este componente funciona para mostrar el temporizador de la tarea en curso
 const Timer = ({ currentTask, loadData, finishTask, pause }: Props) => {
 
+    //Hook utilizados para manejar el estado del temporizador
     const [totalTime, setTotalTime] = useState(0);
     const { changeState } = useTask();
     const elapsedTime = useRef(0);
     const [pauseTimer, setPauseTimer] = useState(false);
-
-    useEffect(() => {
-        initialTime();
-    }, [currentTask.estado]);
-
-    useEffect(() => {
-        if(finishTask) {
-            onChangeStatus(elapsedTime.current);
-        }
-    }, [finishTask]);
-
-    useEffect(() => {
-        setPauseTimer(pause);
-    }, [pause]);
-
     const minuteSeconds = 60;
     const hourSeconds = 3600;
 
@@ -41,6 +28,24 @@ const Timer = ({ currentTask, loadData, finishTask, pause }: Props) => {
         strokeWidth: 6
     };
 
+    //Se inicia el temporizador
+    useEffect(() => {
+        initialTime();
+    }, [currentTask.estado]);
+
+    //Con esta funcion se finaliza una tarea pasando el tiempo transcurrido
+    useEffect(() => {
+        if(finishTask) {
+            onChangeStatus(elapsedTime.current);
+        }
+    }, [finishTask]);
+
+    //Con este hook se pausa el temporizador
+    useEffect(() => {
+        setPauseTimer(pause);
+    }, [pause]);
+
+    //Se establece el tiempo inicial de la tarea en curso en minutos
     const initialTime = () => {
 
         const { horas, minutos, segundos } = currentTask;
@@ -62,6 +67,7 @@ const Timer = ({ currentTask, loadData, finishTask, pause }: Props) => {
 
     const getTimeMinutes = (time: number) => ((time % hourSeconds) / minuteSeconds) | 0;
 
+    //Se renderiza el temporizador
     const renderTime = (dimension: string, time: number, remainingTime: number, elapsed: number) => {
         elapsedTime.current = elapsed;        
         return (
@@ -72,6 +78,7 @@ const Timer = ({ currentTask, loadData, finishTask, pause }: Props) => {
         );
     };
 
+    //Funcion para guardar el tiempo de una tarea finalizada
     const onChangeStatus = (elapsed: number) => {
         const hours = Math.floor(elapsed / 3600);
         const minutes = Math.floor((elapsed % 3600) / 60);

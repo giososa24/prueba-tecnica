@@ -1,5 +1,6 @@
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
+//Estilos utilizados en el navbar
 export const useStylesNabvar = makeStyles((theme: Theme) =>
     createStyles({
         root: {
